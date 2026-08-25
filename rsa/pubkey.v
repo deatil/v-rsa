@@ -35,7 +35,7 @@ fn decode_prikey_data(bytes []u8) !PrikeyData {
 	fields := seq.fields()
 
 	if fields.len < 6 {
-		return error("v-rsa: prikey der error.")
+		return error("v-rsa: prikey der error")
 	}
 
 	version := fields[0].into_object[asn1.Integer]()!
@@ -116,7 +116,7 @@ fn decode_pubkey_data(bytes []u8) !PubkeyData {
 	fields := seq.fields()
 
 	if fields.len < 2 {
-		return error("v-rsa: pubkey der error.")
+		return error("v-rsa: pubkey der error")
 	}
 
 	n := fields[0].into_object[asn1.Integer]()!

@@ -92,6 +92,7 @@ pub fn rand_read_full(mut random rand.PRNG, mut bytes []u8) {
 	rng.read(mut bytes)
 }
 
+// non_zero_random_bytes fills the given slice with non-zero random octets.
 pub fn non_zero_random_bytes(mut s []u8, mut random rand.PRNG) {
 	rand_read_full(mut random, mut s)
 

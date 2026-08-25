@@ -16,6 +16,14 @@ pub interface IHasher {
     hash_msg(msg []u8) ![]u8
 }
 
+// These are ASN1 DER structures:
+//   DigestInfo ::= SEQUENCE {
+//     digestAlgorithm AlgorithmIdentifier,
+//     digest OCTET STRING
+//   }
+// For performance, we don't use the generic ASN1 encoder. Rather, we
+// precompute a prefix of the digest value that makes a valid ASN1 DER string
+// with the correct contents.
 pub struct Hasher {
 pub:
 	prefixe []u8
@@ -67,6 +75,11 @@ pub const hasher_ripemd160 = Hasher{
 	hash: ripemd160.new()
 }
 
+// sign_pkcs1v15 calculates the signature of hashed using
+// RSASSA-PKCS1-V1_5-SIGN from RSA PKCS #1 v1.5.  Note that hashed must
+// be the result of hashing the input message using the given hash
+// function. If hash is zero, hashed is signed directly. This isn't
+// advisable except for interoperability.
 pub fn sign_pkcs1v15(mut random rand.PRNG, priv PrivateKey, hasher IHasher, hashed []u8) ![]u8 {
 	hash_len := hasher.hash_size()
 	prefix := hasher.hash_prefixe()
@@ -102,7 +115,11 @@ pub fn sign_pkcs1v15(mut random rand.PRNG, priv PrivateKey, hasher IHasher, hash
     return out
 }
 
-// verify_pkcs1v15 verifies a signature
+// verify_pkcs1v15 verifies an RSA PKCS #1 v1.5 signature.
+// hashed is the result of hashing the input message using the given hash
+// function and sig is the signature. A valid signature is indicated by
+// returning a nil error. If hash is zero then hashed is used directly. This
+// isn't advisable except for interoperability.
 pub fn verify_pkcs1v15(pubkey PublicKey, hasher IHasher, hashed []u8, sig []u8) ! {
 	hash_len := hasher.hash_size()
 	prefix := hasher.hash_prefixe()
@@ -117,6 +134,9 @@ pub fn verify_pkcs1v15(pubkey PublicKey, hasher IHasher, hashed []u8, sig []u8) 
         return ErrVerification{}
     }
 
+	// RFC 8017 Section 8.2.2: If the length of the signature S is not k
+	// octets (where k is the length in octets of the RSA modulus n), output
+	// "invalid signature" and stop.
     if k != sig.len {
         return ErrVerification{}
     }

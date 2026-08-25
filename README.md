@@ -52,7 +52,9 @@ fn main() {
 
 	if rsa.verify_pkcs1v15(pubkey, rsa.hasher_sha256, hashed, signed) { 
 		println("verify_pkcs1v15: true");
-	}
+	} esle {
+		println("verify_pkcs1v15: false");
+    }
 }
 ~~~
 
@@ -117,24 +119,36 @@ verify_pss(pubkey PublicKey, mut h hash.Hash, digest []u8, sig []u8, opts PSSOpt
 PCKS1 prikey: 
 ~~~v
 parse_prikey_pkcs1_der(bytes []u8) !PrivateKey
+~~~
+
+~~~v
 make_prikey_pkcs1_der(prikey PrivateKey) ![]u8
 ~~~
 
 PCKS1 pubkey: 
 ~~~v
 parse_pubkey_pkcs1_der(bytes []u8) !PublicKey
+~~~
+
+~~~v
 make_pubkey_pkcs1_der(pubkey PublicKey) ![]u8
 ~~~
 
 PCKS8 prikey: 
 ~~~v
 parse_prikey_pkcs8_der(bytes []u8) !PrivateKey
+~~~
+
+~~~v
 make_prikey_pkcs8_der(prikey PrivateKey) ![]u8
 ~~~
 
 PCKS8 pubkey: 
 ~~~v
 parse_pubkey_pkcs8_der(bytes []u8) !PublicKey
+~~~
+
+~~~v
 make_pubkey_pkcs8_der(pubkey PublicKey) ![]u8
 ~~~
 

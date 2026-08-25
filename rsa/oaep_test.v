@@ -1,6 +1,7 @@
 module rsa
 
 import crypto.sha1
+import crypto.sha256
 import rand.seed
 import rand.mt19937
 import math.big
@@ -97,6 +98,31 @@ pub fn test_encrypt_oaep_with_opts() {
 	assert "12345678abcde" == demsg.bytestr()
 }
 
+pub fn test_encrypt_oaep_with_opts2() {
+	prikey := get_prikey()!
+	pubkey := prikey.public()
+
+	mut rng := get_rng()
+
+	msg := "12345678abcde".bytes()
+	label := "label-test".bytes()
+
+	opts := OAEPOptions{
+		hash: sha1.new()
+		mgf_hash: sha256.new()
+		label: label
+	}
+
+	ciphertext := encrypt_oaep_with_opts(mut rng, pubkey, msg, opts)!
+	assert ciphertext.len > 0
+
+	// ciphertext = 75d2af1cf420c6e2b64c5b3e062457059eb2cea9afc01d19e3042105983cbfe1ad97cb782e0a489419d6cc9995c68f19595acdc21883f2815b9ae4bc1938a7a2788920358e67fa2b4974382517bdbe92f18cbf5588ee282cf40fe6a7669555bf6e4da6df96cfeb3ad50a42f501e7aebafdd070d54bbbdf4f1001127a9466114371c1b4f34bf15779bc71e3e017dc056a30a4bcde4c3a9e380e45af4a45e42b808181ef089c418daac4e4af0a65f9bff086e09d898540f5217c7d136979b682c8a394ea44b377c72abae714eb254c70604e6254c8c2f6f4c749805abd169cab062057e41d1df3d5709721b5837425af16db10d3bbe84d06fa3cb94b46360cb490
+
+	demsg := decrypt_oaep_with_opts(prikey, ciphertext, opts)!
+	assert demsg.len > 0
+	assert "12345678abcde" == demsg.bytestr()
+}
+
 pub fn test_decrypt_oaep_with_opts_check() {
 	prikey := get_prikey()!
 
@@ -132,4 +158,22 @@ pub fn test_decrypt_oaep_with_opts_check2() {
 	demsg := decrypt_oaep_with_opts(prikey, ct, opts)!
 	assert demsg.len > 0
 	assert "12345678abcde" == demsg.bytestr()
+}
+
+pub fn test_decrypt_oaep_with_opts_check3() {
+	prikey := get_prikey()!
+
+	ciphertext := "599db7a8bd82e2762b06cded4398577544eb0502422eb64fe2c9c517d8a5b95b2ccff009ddc1b79ce4442224625c719cc33b2bae006b38cf2956a0889fe0be524364c4177b626faeb36ea9b2e45614a31add21ca644235d0f27a66984746c0f16f82f0f127cf37c2e93ecff0fd8d3b4ba1ad696d77a94ae26d479977921282fce7b654d3df80656a01d4d415e04bccff4acc0f5ab8197db3eea2f4a044e3e8736ddcfdac561eb4ef4559f6524e9e1531ec98a6b0535183e5013e0ebc56627c01d89df99fb1a5774f0a762dea30ed0b3f80c9ddae63db942606ac76dc930614edf8386afebc8ef348b4e106b2f8e27fb7357053f7d865193a48eceabc3c8e430e"
+	ct := from_hex(ciphertext)!
+	label := "label-test".bytes()
+
+	opts := OAEPOptions{
+		hash: sha1.new()
+		mgf_hash: sha256.new()
+		label: label
+	}
+
+	demsg := decrypt_oaep_with_opts(prikey, ct, opts)!
+	assert demsg.len > 0
+	assert "message-data" == demsg.bytestr()
 }

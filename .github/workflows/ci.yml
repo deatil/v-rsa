@@ -1,0 +1,19 @@
+name: CI
+
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup v action
+        uses: prantlf/setup-v-action@v4
+        with:
+          version: 0.5.2
+      - name: Test
+        run: v test .

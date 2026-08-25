@@ -61,7 +61,7 @@ fn main() {
 
 Generate key: 
 ~~~v
-generate_multi_prime_key(mut random rand.PRNG, nprimes int, bits int) !PrivateKey 
+generate_key(mut random rand.PRNG, bits int) !PrivateKey
 ~~~
 
 PKCS1v15 sign: 

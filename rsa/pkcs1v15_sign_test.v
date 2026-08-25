@@ -1,5 +1,6 @@
 module rsa
 
+import rand
 import rand.seed
 import rand.mt19937
 import math.big
@@ -81,4 +82,35 @@ pub fn test_sign_pkcs1v15_with_generate_key() {
 	assert signed.len > 0
 
 	verify_pkcs1v15(pubkey, hasher_sha256, hashed, signed)!
+}
+
+pub fn use_sign_pkcs1v15_test(hasher IHasher)! {
+	prikey := get_prikey()!
+	pubkey := prikey.public()
+
+	mut rng := rand.new_default()
+
+	msg := "12345678abcde".bytes()
+	hashed := hasher.hash_msg(msg)!
+
+	signed := sign_pkcs1v15(mut rng, prikey, hasher, hashed)!
+	assert signed.len > 0
+
+	verify_pkcs1v15(pubkey, hasher, hashed, signed)!
+}
+
+pub fn test_sign_pkcs1v15_list() {
+	use_sign_pkcs1v15_test(hasher_md5)!
+	use_sign_pkcs1v15_test(hasher_sha1)!
+	use_sign_pkcs1v15_test(hasher_sha224)!
+	use_sign_pkcs1v15_test(hasher_sha256)!
+	use_sign_pkcs1v15_test(hasher_sha384)!
+	use_sign_pkcs1v15_test(hasher_sha512)!
+	use_sign_pkcs1v15_test(hasher_sha512_224)!
+	use_sign_pkcs1v15_test(hasher_sha512_256)!
+	use_sign_pkcs1v15_test(hasher_sha3_224)!
+	use_sign_pkcs1v15_test(hasher_sha3_256)!
+	use_sign_pkcs1v15_test(hasher_sha3_384)!
+	use_sign_pkcs1v15_test(hasher_sha3_512)!
+	use_sign_pkcs1v15_test(hasher_ripemd160)!
 }

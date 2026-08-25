@@ -120,7 +120,7 @@ parse_prikey_pkcs1_der(bytes []u8) !PrivateKey
 make_prikey_pkcs1_der(prikey PrivateKey) ![]u8
 ~~~
 
-PCKS1 prikey: 
+PCKS1 pubkey: 
 ~~~v
 parse_pubkey_pkcs1_der(bytes []u8) !PublicKey
 make_pubkey_pkcs1_der(pubkey PublicKey) ![]u8
@@ -132,7 +132,7 @@ parse_prikey_pkcs8_der(bytes []u8) !PrivateKey
 make_prikey_pkcs8_der(prikey PrivateKey) ![]u8
 ~~~
 
-PCKS8 prikey: 
+PCKS8 pubkey: 
 ~~~v
 parse_pubkey_pkcs8_der(bytes []u8) !PublicKey
 make_pubkey_pkcs8_der(pubkey PublicKey) ![]u8

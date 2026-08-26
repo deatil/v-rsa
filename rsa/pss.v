@@ -211,7 +211,6 @@ fn sign_pss_with_salt(priv PrivateKey, mut h hash.Hash, hashed []u8, salt []u8) 
     em := emsa_pss_encode(hashed, em_bits, salt, mut h)!
 
     m := big.integer_from_bytes(em)
-
     c := decrypt_and_check(priv, m)!
 
     mut s := []u8{len: priv.size()}

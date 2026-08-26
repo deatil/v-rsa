@@ -131,12 +131,8 @@ pub fn (mut priv PrivateKey) precompute() ! {
         return
     }
     
-    priv.precomputed.dp = priv.primes[0] - big_one
-    priv.precomputed.dp = priv.d % priv.precomputed.dp
-
-    priv.precomputed.dq = priv.primes[1] - big_one
-    priv.precomputed.dq = priv.d % priv.precomputed.dq
-
+    priv.precomputed.dp = priv.d % (priv.primes[0] - big_one)
+    priv.precomputed.dq = priv.d % (priv.primes[1] - big_one)
     priv.precomputed.q_inv = priv.primes[1].mod_inverse(priv.primes[0])!
 
     mut r := priv.primes[0] * priv.primes[1] // placeholder mul two-arg version
@@ -146,9 +142,7 @@ pub fn (mut priv PrivateKey) precompute() ! {
 
         mut values := &priv.precomputed.crt_values[i-2]
 
-        values.exp = prime - big_one
-        values.exp = priv.d % values.exp
-
+        values.exp = priv.d % (prime - big_one)
         values.r = r + big_zero
         values.coeff = r.mod_inverse(prime)!
 

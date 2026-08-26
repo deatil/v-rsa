@@ -9,7 +9,7 @@ pub fn bigint_copy(x big.Integer) big.Integer {
 
 pub fn rand_prime(mut random rand.PRNG, bits int) !big.Integer {
 	if bits < 2 {
-		return error("v-rsa: prime size must be at least 2-bit")
+		return error('v-rsa: prime size must be at least 2-bit')
 	}
 
 	mut b := u32(bits % 8)
@@ -17,13 +17,13 @@ pub fn rand_prime(mut random rand.PRNG, bits int) !big.Integer {
 		b = 8
 	}
 
-	mut bytes := []u8{len: (bits+7)/8}
+	mut bytes := []u8{len: (bits + 7) / 8}
 	mut p := big.Integer{}
 
 	for {
 		rand_read_full(mut random, mut bytes)
 
-		bytes[0] &= u8(int(1<<b) - 1)
+		bytes[0] &= u8(int(1 << b) - 1)
 
 		if b >= 2 {
 			bytes[0] |= 3 << (b - 2)
@@ -35,7 +35,7 @@ pub fn rand_prime(mut random rand.PRNG, bits int) !big.Integer {
 			}
 		}
 		// Make the value odd since an even number this large certainly isn't prime.
-		bytes[bytes.len-1] |= 1
+		bytes[bytes.len - 1] |= 1
 
 		p = big.integer_from_bytes(bytes)
 		if bigint_is_probable_prime(p) {
@@ -48,7 +48,7 @@ pub fn rand_prime(mut random rand.PRNG, bits int) !big.Integer {
 
 pub fn rand_int(mut random rand.PRNG, max big.Integer) !big.Integer {
 	if max.signum <= 0 {
-		return error("v-rsa: argument to Int is <= 0")
+		return error('v-rsa: argument to Int is <= 0')
 	}
 
 	mut n := max - big_one
@@ -76,7 +76,7 @@ pub fn rand_int(mut random rand.PRNG, max big.Integer) !big.Integer {
 
 		// Clear bits in the first byte to increase the probability
 		// that the candidate is < max.
-		bytes[0] &= u8(int(1<<b) - 1)
+		bytes[0] &= u8(int(1 << b) - 1)
 
 		n = big.integer_from_bytes(bytes)
 		if n < max {
@@ -98,7 +98,7 @@ pub fn non_zero_random_bytes(mut s []u8, mut random rand.PRNG) {
 
 	for i := 0; i < s.len; i++ {
 		for s[i] == 0 {
-			rand_read_full(mut random, mut s[i..i+1])
+			rand_read_full(mut random, mut s[i..i + 1])
 
 			// In tests, the PRNG may return all zeros so we do
 			// this to break the loop.
@@ -172,9 +172,7 @@ fn miller_rabin_test(n big.Integer, witnesses []u64) bool {
 		}
 
 		// x = a^d mod n
-		mut x := a.big_mod_pow(d, n) or { 
-			return false 
-		}
+		mut x := a.big_mod_pow(d, n) or { return false }
 		if x == big.one_int || x == n_minus_one {
 			continue
 		}

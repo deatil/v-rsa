@@ -44,14 +44,14 @@ fn new_sha3_512() &Sha3Digest {
 
 interface ISha3Hasher {
 mut:
-	write(data []u8)!
+	write(data []u8) !
 	checksum() []u8
 }
 
 struct Sha3Digest {
 mut:
-	hash &ISha3Hasher = unsafe { nil }
-	hash_size int
+	hash            &ISha3Hasher = unsafe { nil }
+	hash_size       int
 	hash_block_size int
 }
 
@@ -75,9 +75,7 @@ pub fn (mut d Sha3Digest) free() {
 }
 
 pub fn (mut d Sha3Digest) reset() {
-	d.hash = sha3.new_digest(d.hash_block_size, d.hash_size) or {
-		panic(err)
-	}
+	d.hash = sha3.new_digest(d.hash_block_size, d.hash_size) or { panic(err) }
 }
 
 pub fn (mut d Sha3Digest) write(data []u8) !int {

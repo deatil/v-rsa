@@ -35,7 +35,7 @@ fn decode_prikey_data(bytes []u8) !PrikeyData {
 	fields := seq.fields()
 
 	if fields.len < 6 {
-		return error("v-rsa: prikey der error")
+		return error('v-rsa: prikey der error')
 	}
 
 	version := fields[0].into_object[asn1.Integer]()!
@@ -53,7 +53,7 @@ pub fn parse_prikey_pkcs1_der(bytes []u8) !PrivateKey {
 
 	version := data.version.as_i64()!
 	if version != 0 && version != 1 {
-		return error("v-rsa: RSA PKCS1 private key version is error")
+		return error('v-rsa: RSA PKCS1 private key version is error')
 	}
 
 	n := big.integer_from_radix(data.n.hex(), 16)!
@@ -62,16 +62,16 @@ pub fn parse_prikey_pkcs1_der(bytes []u8) !PrivateKey {
 	p := big.integer_from_radix(data.p.hex(), 16)!
 	q := big.integer_from_radix(data.q.hex(), 16)!
 
-    mut prikey := PrivateKey{
-        PublicKey: PublicKey{
-            n: n
-            e: int(e)
-        }
-        d: d
-        primes: [p, q]
-    }
+	mut prikey := PrivateKey{
+		PublicKey: PublicKey{
+			n: n
+			e: int(e)
+		}
+		d:         d
+		primes:    [p, q]
+	}
 
-    prikey.precompute()!
+	prikey.precompute()!
 
 	return prikey
 }
@@ -116,7 +116,7 @@ fn decode_pubkey_data(bytes []u8) !PubkeyData {
 	fields := seq.fields()
 
 	if fields.len < 2 {
-		return error("v-rsa: pubkey der error")
+		return error('v-rsa: pubkey der error')
 	}
 
 	n := fields[0].into_object[asn1.Integer]()!
@@ -131,7 +131,7 @@ pub fn parse_pubkey_pkcs1_der(bytes []u8) !PublicKey {
 	n := big.integer_from_radix(data.n.hex(), 16)!
 	e := data.e.as_i64()!
 
-    pubkey := PublicKey{
+	pubkey := PublicKey{
 		n: n
 		e: int(e)
 	}
@@ -161,7 +161,7 @@ pub fn parse_prikey_pkcs8_der(bytes []u8) !PrivateKey {
 	ver := fields[0].into_object[asn1.Integer]()!
 	version := ver.as_i64()!
 	if version != 0 && version != 1 {
-		return error("v-rsa: RSA PKCS8 private key version is error")
+		return error('v-rsa: RSA PKCS8 private key version is error')
 	}
 
 	oid_seq := fields[1].into_object[asn1.Sequence]()!
@@ -179,7 +179,7 @@ pub fn parse_prikey_pkcs8_der(bytes []u8) !PrivateKey {
 
 pub fn make_prikey_pkcs8_der(prikey PrivateKey) ![]u8 {
 	version := asn1.Integer.from_int(0)
-	oid_rsa_publickey := asn1.ObjectIdentifier.new("1.2.840.113549.1.1.1")!
+	oid_rsa_publickey := asn1.ObjectIdentifier.new('1.2.840.113549.1.1.1')!
 	null := asn1.Null{}
 	prikey_data := make_prikey_pkcs1_der(prikey)!
 
@@ -219,7 +219,7 @@ pub fn parse_pubkey_pkcs8_der(bytes []u8) !PublicKey {
 }
 
 pub fn make_pubkey_pkcs8_der(pubkey PublicKey) ![]u8 {
-	oid_rsa_publickey := asn1.ObjectIdentifier.new("1.2.840.113549.1.1.1")!
+	oid_rsa_publickey := asn1.ObjectIdentifier.new('1.2.840.113549.1.1.1')!
 	null := asn1.Null{}
 	pubkey_data := make_pubkey_pkcs1_der(pubkey)!
 
@@ -245,14 +245,14 @@ fn make_bitstring_bytes(input []u8) []u8 {
 
 	out[0] = u8(pad_len)
 	copy(mut out[1..], input)
-	out[out.len-1] = u8(0)
+	out[out.len - 1] = u8(0)
 
 	return out
 }
 
 fn check_pkcs8_publickey_oid(oid asn1.ObjectIdentifier) ! {
-	oid_rsa_publickey := asn1.ObjectIdentifier.new("1.2.840.113549.1.1.1")!
+	oid_rsa_publickey := asn1.ObjectIdentifier.new('1.2.840.113549.1.1.1')!
 	if !oid_rsa_publickey.equal(oid) {
-		return error("v-rsa: rsa oid error")
+		return error('v-rsa: rsa oid error')
 	}
 }

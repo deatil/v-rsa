@@ -48,7 +48,7 @@ fn mgf1_xor(mut out []u8, mut h hash.Hash, seed []u8) ! {
 
 fn encrypt(pubkey PublicKey, m big.Integer) !big.Integer {
 	e := big.integer_from_int(pubkey.e)
-	mut m2 := m + big_zero
+	mut m2 := bigint_copy(m)
 	c := m2.big_mod_pow(e, pubkey.n)!
 	return c
 }

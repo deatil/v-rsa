@@ -235,7 +235,7 @@ pub struct PSSOptions {
 pub:
 	// SaltLength controls the length of the salt used in the PSS
 	// signature. It can either be a number of bytes, or one of the special
-	// PSSSaltLength constants.
+	// pss_salt_length constants.
     salt_leng int
 
 	// hash is the hash function used to generate the message digest. If not

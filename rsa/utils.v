@@ -108,17 +108,13 @@ pub fn non_zero_random_bytes(mut s []u8, mut random rand.PRNG) {
 }
 
 pub fn find_bytes_index(data []u8, val u8) int {
-	if data.len == 0 {
-		return 0
-	}
-
 	for i, item in data {
 		if item == val {
 			return i
 		}
 	}
 
-	return 0
+	return -1
 }
 
 pub fn bigint_is_probable_prime(n big.Integer) bool {

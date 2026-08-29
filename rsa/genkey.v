@@ -4,13 +4,13 @@ import rand
 import math
 import math.big
 
-// GenerateKey generates an RSA keypair of the given bit size using the
+// generate_key generates an RSA keypair of the given bit size using the
 // random source random (for example, rand.new_default()).
 pub fn generate_key(mut random rand.PRNG, bits int) !PrivateKey {
 	return generate_multi_prime_key(mut random, 2, bits)
 }
 
-// GenerateMultiPrimeKey generates a multi-prime RSA keypair of the given bit
+// generate_multi_prime_key generates a multi-prime RSA keypair of the given bit
 // size and the given random source, as suggested in [1]. Although the public
 // keys are compatible (actually, indistinguishable) from the 2-prime case,
 // the private keys are not. Thus it may not be possible to export multi-prime

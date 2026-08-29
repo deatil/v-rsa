@@ -48,12 +48,12 @@ fn main() {
 
 	signed := rsa.sign_pkcs1v15(mut rng, prikey, rsa.hasher_sha256, hashed)!
 
-    println("sign_pkcs1v15: ${signed}");
+    println("sign_pkcs1v15: ${signed}")
 
 	if rsa.verify_pkcs1v15(pubkey, rsa.hasher_sha256, hashed, signed) { 
-		println("verify_pkcs1v15: true");
+		println("verify_pkcs1v15: true")
 	} esle {
-		println("verify_pkcs1v15: false");
+		println("verify_pkcs1v15: false")
     }
 }
 ~~~

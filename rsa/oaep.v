@@ -9,13 +9,13 @@ import subtle
 @[params]
 pub struct OAEPOptions {
 pub:
-	// Hash is the hash function that will be used when generating the mask.
+	// hash is the hash function that will be used when generating the mask.
 	hash &hash.Hash = unsafe { nil }
 
-	// MGFHash is the hash function used for MGF1.
+	// mgf_hash is the hash function used for MGF1.
 	mgf_hash &hash.Hash = unsafe { nil }
 
-	// Label is an arbitrary byte string that must be equal to the value
+	// label is an arbitrary byte string that must be equal to the value
 	// used when encrypting.
 	label []u8 = []
 }

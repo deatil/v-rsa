@@ -43,18 +43,20 @@ fn main() {
 	prikey := rsa.generate_key(mut rng, 2048)!
 	pubkey := prikey.public()
 
-	msg := "12345678abcde".bytes()
+	msg := '12345678abcde'.bytes()
 	hashed := rsa.hasher_sha256.hash_msg(msg)!
 
 	signed := rsa.sign_pkcs1v15(mut rng, prikey, rsa.hasher_sha256, hashed)!
 
-    println("sign_pkcs1v15: ${signed}")
+	println('sign_pkcs1v15: ${signed.hex()}')
 
-	if rsa.verify_pkcs1v15(pubkey, rsa.hasher_sha256, hashed, signed) { 
-		println("verify_pkcs1v15: true")
-	} esle {
-		println("verify_pkcs1v15: false")
-    }
+	veri := if _ := rsa.verify_pkcs1v15(pubkey, rsa.hasher_sha256, hashed, signed) {
+		true
+	} else {
+		false
+	}
+
+	println('verify_pkcs1v15: ${veri}')
 }
 ~~~
 

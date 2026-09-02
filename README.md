@@ -46,7 +46,7 @@ fn main() {
 	msg := '12345678abcde'.bytes()
 	hashed := rsa.hasher_sha256.hash_msg(msg)!
 
-	signed := rsa.sign_pkcs1v15(mut rng, prikey, rsa.hasher_sha256, hashed)!
+	signed := rsa.sign_pkcs1v15(prikey, rsa.hasher_sha256, hashed)!
 
 	println('sign_pkcs1v15: ${signed.hex()}')
 
@@ -70,7 +70,7 @@ generate_key(mut random rand.PRNG, bits int) !PrivateKey
 
 PKCS1v15 sign: 
 ~~~v
-sign_pkcs1v15(mut random rand.PRNG, priv PrivateKey, hasher IHasher, hashed []u8) ![]u8
+sign_pkcs1v15(priv PrivateKey, hasher IHasher, hashed []u8) ![]u8
 ~~~
 
 ~~~v

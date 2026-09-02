@@ -1,7 +1,6 @@
 module rsa
 
 import hash
-import rand
 import math.big
 import crypto.md5
 import crypto.sha1
@@ -130,7 +129,7 @@ pub const hasher_ripemd160 = Hasher{
 // be the result of hashing the input message using the given hash
 // function. If hash is zero, hashed is signed directly. This isn't
 // advisable except for interoperability.
-pub fn sign_pkcs1v15(mut random rand.PRNG, priv PrivateKey, hasher IHasher, hashed []u8) ![]u8 {
+pub fn sign_pkcs1v15(priv PrivateKey, hasher IHasher, hashed []u8) ![]u8 {
 	hash_len := hasher.hash_size()
 	prefix := hasher.hash_prefixe()
 

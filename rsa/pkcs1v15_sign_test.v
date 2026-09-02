@@ -1,6 +1,5 @@
 module rsa
 
-import rand
 import rand.seed
 import rand.mt19937
 import math.big
@@ -45,12 +44,10 @@ pub fn test_sign_pkcs1v15() {
 	prikey := get_prikey()!
 	pubkey := prikey.public()
 
-	mut rng := get_rng()
-
 	msg := '12345678abcde'.bytes()
 	hashed := hasher_sha256.hash_msg(msg)!
 
-	signed := sign_pkcs1v15(mut rng, prikey, hasher_sha256, hashed)!
+	signed := sign_pkcs1v15(prikey, hasher_sha256, hashed)!
 	assert signed.len > 0
 
 	verify_pkcs1v15(pubkey, hasher_sha256, hashed, signed)!
@@ -107,7 +104,7 @@ pub fn test_sign_pkcs1v15_with_generate_key() {
 	msg := '12345678abcde'.bytes()
 	hashed := hasher_sha256.hash_msg(msg)!
 
-	signed := sign_pkcs1v15(mut rng, prikey, hasher_sha256, hashed)!
+	signed := sign_pkcs1v15(prikey, hasher_sha256, hashed)!
 	assert signed.len > 0
 
 	verify_pkcs1v15(pubkey, hasher_sha256, hashed, signed)!
@@ -117,12 +114,10 @@ pub fn use_sign_pkcs1v15_test(hasher IHasher) ! {
 	prikey := get_prikey()!
 	pubkey := prikey.public()
 
-	mut rng := rand.new_default()
-
 	msg := '12345678abcde'.bytes()
 	hashed := hasher.hash_msg(msg)!
 
-	signed := sign_pkcs1v15(mut rng, prikey, hasher, hashed)!
+	signed := sign_pkcs1v15(prikey, hasher, hashed)!
 	assert signed.len > 0
 
 	verify_pkcs1v15(pubkey, hasher, hashed, signed)!

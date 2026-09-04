@@ -139,8 +139,9 @@ fn decrypt_oaep_internal(mut h hash.Hash, mut mgf_h hash.Hash, priv PrivateKey, 
 	check_pub(priv.public())!
 
 	k := priv.public().size()
+	hash_size := h.size()
 
-	if ciphertext.len > k || k < h.size() * 2 + 2 {
+	if ciphertext.len > k || k < hash_size * 2 + 2 {
 		return ErrDecryption{}
 	}
 
@@ -158,13 +159,13 @@ fn decrypt_oaep_internal(mut h hash.Hash, mut mgf_h hash.Hash, priv PrivateKey, 
 
 	first_byte_is_zero := subtle.constant_time_byte_eq(em[0], 0)
 
-	mut seed := em[1..h.size() + 1].clone()
-	mut db := em[h.size() + 1..].clone()
+	mut seed := em[1..hash_size + 1].clone()
+	mut db := em[hash_size + 1..].clone()
 
 	mgf1_xor(mut seed, mut mgf_h, db)!
 	mgf1_xor(mut db, mut mgf_h, seed)!
 
-	l_hash2 := db[0..h.size()].clone()
+	l_hash2 := db[0..hash_size].clone()
 
 	l_hash2_good := subtle.constant_time_compare(l_hash, l_hash2)
 
@@ -172,7 +173,7 @@ fn decrypt_oaep_internal(mut h hash.Hash, mut mgf_h hash.Hash, priv PrivateKey, 
 	mut index := int(0)
 	mut invalid := int(0)
 
-	rest := db[h.size()..].clone()
+	rest := db[hash_size..].clone()
 
 	for i := 0; i < rest.len; i++ {
 		equals0 := subtle.constant_time_byte_eq(rest[i], 0)

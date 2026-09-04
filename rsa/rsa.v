@@ -134,6 +134,18 @@ pub fn (mut priv PrivateKey) precompute() ! {
 	priv.precomputed.dp = priv.d % (priv.primes[0] - big_one)
 	priv.precomputed.dq = priv.d % (priv.primes[1] - big_one)
 	priv.precomputed.q_inv = priv.primes[1].mod_inverse(priv.primes[0])!
+	priv.precomputed.crt_values = []CRTValue{}
+}
+
+// precompute crt_values
+pub fn (mut priv PrivateKey) precompute_legacy() ! {
+	if priv.precomputed.dp.int() != 0 {
+		return
+	}
+
+	priv.precomputed.dp = priv.d % (priv.primes[0] - big_one)
+	priv.precomputed.dq = priv.d % (priv.primes[1] - big_one)
+	priv.precomputed.q_inv = priv.primes[1].mod_inverse(priv.primes[0])!
 
 	mut r := priv.primes[0] * priv.primes[1] // placeholder mul two-arg version
 	priv.precomputed.crt_values = []CRTValue{len: priv.primes.len - 2}

@@ -190,7 +190,7 @@ fn test_private_key_precompute() {
 		primes:    [p, q, c1, c2]
 	}
 
-	prikey.precompute()!
+	prikey.precompute_legacy()!
 
 	assert 256 == prikey.size()
 

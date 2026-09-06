@@ -26,7 +26,7 @@ pub fn generate_multi_prime_key(mut random rand.PRNG, nprimes int, bits int) !Pr
 	priv.PublicKey.e = 65537
 
 	if nprimes < 2 {
-		return error('v-rsa: GenerateMultiPrimeKey: nprimes must be >= 2')
+		return error('v-rsa: generate_multi_prime_key: nprimes must be >= 2')
 	}
 
 	if bits < 64 {

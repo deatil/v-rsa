@@ -3,7 +3,7 @@ module rsa
 import rand.seed
 import rand.mt19937
 
-pub fn test_generate_key() {
+fn test_generate_key() {
 	seed_data := seed.time_seed_array(2)
 
 	mut rnd := &mt19937.MT19937RNG{}
@@ -21,7 +21,7 @@ pub fn test_generate_key() {
 	assert false == pubkey.equal(pubkey2)
 }
 
-pub fn test_generate_key2() {
+fn test_generate_key2() {
 	/*
 	seed_data := seed.time_seed_array(2)
 	
@@ -44,3 +44,4 @@ pub fn test_generate_key2() {
 	}
 	*/
 }
+

@@ -162,7 +162,7 @@ pub fn (mut priv PrivateKey) precompute_legacy() ! {
 	}
 }
 
-// checkPub sanity checks the public key before we use it.
+// check_pub sanity checks the public key before we use it.
 // https://www.imperialviolet.org/2012/03/16/rsae.html.
 fn check_pub(p PublicKey) ! {
 	if p.n == big_zero {

@@ -4,7 +4,7 @@ import math.big
 import rand.seed
 import rand.mt19937
 
-pub fn test_bigint_copy() {
+fn test_bigint_copy() {
 	msg := 'cadaaec6a8f275e9dcd92223b185285f6cdd42dbc1382ddc28f9980a9179d544'
 
 	a := big.integer_from_radix(msg, 16)!
@@ -18,7 +18,7 @@ pub fn test_bigint_copy() {
 	assert msg == b_hex
 }
 
-pub fn test_rand_prime_fail() {
+fn test_rand_prime_fail() {
 	seed_data := seed.time_seed_array(2)
 
 	mut rnd := &mt19937.MT19937RNG{}
@@ -32,7 +32,7 @@ pub fn test_rand_prime_fail() {
 	assert true == need_err
 }
 
-pub fn test_rand_prime() {
+fn test_rand_prime() {
 	seed_data := seed.time_seed_array(2)
 
 	mut rnd := &mt19937.MT19937RNG{}
@@ -42,7 +42,7 @@ pub fn test_rand_prime() {
 	assert 1024 == p.bit_len()
 }
 
-pub fn test_non_zero_random_bytes() {
+fn test_non_zero_random_bytes() {
 	seed_data := seed.time_seed_array(2)
 
 	mut rnd := &mt19937.MT19937RNG{}
@@ -54,7 +54,7 @@ pub fn test_non_zero_random_bytes() {
 	assert 0 != s[3]
 }
 
-pub fn test_rand_int() {
+fn test_rand_int() {
 	seed_data := seed.time_seed_array(2)
 
 	mut rnd := &mt19937.MT19937RNG{}
@@ -66,7 +66,7 @@ pub fn test_rand_int() {
 	assert p < max
 }
 
-pub fn test_find_bytes_index() {
+fn test_find_bytes_index() {
 	mut i := find_bytes_index([u8(0x2d), 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01], 0x86)
 	assert 6 == i
 

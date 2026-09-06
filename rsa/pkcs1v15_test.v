@@ -59,7 +59,7 @@ fn get_prikey2() !PrivateKey {
 	return prikey
 }
 
-pub fn test_encrypt_pkcs1v15() {
+fn test_encrypt_pkcs1v15() {
 	prikey := get_prikey()!
 	pubkey := prikey.public()
 
@@ -75,7 +75,7 @@ pub fn test_encrypt_pkcs1v15() {
 	assert '12345678abcde' == demsg.bytestr()
 }
 
-pub fn test_encrypt_pkcs1v15_no_precompute() {
+fn test_encrypt_pkcs1v15_no_precompute() {
 	prikey := get_prikey2()!
 	pubkey := prikey.public()
 
@@ -93,7 +93,7 @@ pub fn test_encrypt_pkcs1v15_no_precompute() {
 	assert '12345678abcde' == demsg.bytestr()
 }
 
-pub fn test_decrypt_pkcs1v15_check() {
+fn test_decrypt_pkcs1v15_check() {
 	prikey := get_prikey()!
 
 	msg := '12345678abcde'.bytes()
@@ -105,7 +105,7 @@ pub fn test_decrypt_pkcs1v15_check() {
 	assert '12345678abcde' == demsg.bytestr()
 }
 
-pub fn test_decrypt_pkcs1v15_session_key_check() {
+fn test_decrypt_pkcs1v15_session_key_check() {
 	prikey := get_prikey()!
 
 	msg := '12345678abcde'.bytes()
@@ -119,7 +119,7 @@ pub fn test_decrypt_pkcs1v15_session_key_check() {
 	assert '12345678abcde' == key.bytestr()
 }
 
-pub fn test_decrypt_pkcs1v15_session_key_with_opts_check() {
+fn test_decrypt_pkcs1v15_session_key_with_opts_check() {
 	prikey := get_prikey()!
 
 	msg := '12345678abcde'.bytes()

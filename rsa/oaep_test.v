@@ -42,7 +42,7 @@ fn get_prikey() !PrivateKey {
 	return prikey
 }
 
-pub fn test_encrypt_oaep() {
+fn test_encrypt_oaep() {
 	prikey := get_prikey()!
 	pubkey := prikey.public()
 
@@ -60,7 +60,7 @@ pub fn test_encrypt_oaep() {
 	assert '12345678abcde' == demsg.bytestr()
 }
 
-pub fn test_decrypt_oaep_check() {
+fn test_decrypt_oaep_check() {
 	prikey := get_prikey()!
 
 	mut h := sha1.new()
@@ -75,7 +75,7 @@ pub fn test_decrypt_oaep_check() {
 	assert '12345678abcde' == demsg.bytestr()
 }
 
-pub fn test_encrypt_oaep_with_opts() {
+fn test_encrypt_oaep_with_opts() {
 	prikey := get_prikey()!
 	pubkey := prikey.public()
 
@@ -98,7 +98,7 @@ pub fn test_encrypt_oaep_with_opts() {
 	assert '12345678abcde' == demsg.bytestr()
 }
 
-pub fn test_encrypt_oaep_with_opts2() {
+fn test_encrypt_oaep_with_opts2() {
 	prikey := get_prikey()!
 	pubkey := prikey.public()
 
@@ -123,7 +123,7 @@ pub fn test_encrypt_oaep_with_opts2() {
 	assert '12345678abcde' == demsg.bytestr()
 }
 
-pub fn test_decrypt_oaep_with_opts_check() {
+fn test_decrypt_oaep_with_opts_check() {
 	prikey := get_prikey()!
 
 	msg := '12345678abcde'.bytes()
@@ -142,7 +142,7 @@ pub fn test_decrypt_oaep_with_opts_check() {
 	assert '12345678abcde' == demsg.bytestr()
 }
 
-pub fn test_decrypt_oaep_with_opts_check2() {
+fn test_decrypt_oaep_with_opts_check2() {
 	prikey := get_prikey()!
 
 	msg := '12345678abcde'.bytes()
@@ -160,7 +160,7 @@ pub fn test_decrypt_oaep_with_opts_check2() {
 	assert '12345678abcde' == demsg.bytestr()
 }
 
-pub fn test_decrypt_oaep_with_opts_check3() {
+fn test_decrypt_oaep_with_opts_check3() {
 	prikey := get_prikey()!
 
 	ciphertext := '599db7a8bd82e2762b06cded4398577544eb0502422eb64fe2c9c517d8a5b95b2ccff009ddc1b79ce4442224625c719cc33b2bae006b38cf2956a0889fe0be524364c4177b626faeb36ea9b2e45614a31add21ca644235d0f27a66984746c0f16f82f0f127cf37c2e93ecff0fd8d3b4ba1ad696d77a94ae26d479977921282fce7b654d3df80656a01d4d415e04bccff4acc0f5ab8197db3eea2f4a044e3e8736ddcfdac561eb4ef4559f6524e9e1531ec98a6b0535183e5013e0ebc56627c01d89df99fb1a5774f0a762dea30ed0b3f80c9ddae63db942606ac76dc930614edf8386afebc8ef348b4e106b2f8e27fb7357053f7d865193a48eceabc3c8e430e'

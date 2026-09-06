@@ -40,7 +40,7 @@ fn get_prikey() !PrivateKey {
 	return prikey
 }
 
-pub fn test_sign_pkcs1v15() {
+fn test_sign_pkcs1v15() {
 	prikey := get_prikey()!
 	pubkey := prikey.public()
 
@@ -53,7 +53,7 @@ pub fn test_sign_pkcs1v15() {
 	verify_pkcs1v15(pubkey, hasher_sha256, hashed, signed)!
 }
 
-pub fn test_sign_pkcs1v15_check() {
+fn test_sign_pkcs1v15_check() {
 	prikey := get_prikey()!
 	pubkey := prikey.public()
 
@@ -66,7 +66,7 @@ pub fn test_sign_pkcs1v15_check() {
 	verify_pkcs1v15(pubkey, hasher_sha256, hashed, signed)!
 }
 
-pub fn use_sign_pkcs1v15_check_test(hasher IHasher, ciphertext string) ! {
+fn use_sign_pkcs1v15_check_test(hasher IHasher, ciphertext string) ! {
 	prikey := get_prikey()!
 	pubkey := prikey.public()
 
@@ -78,7 +78,7 @@ pub fn use_sign_pkcs1v15_check_test(hasher IHasher, ciphertext string) ! {
 	verify_pkcs1v15(pubkey, hasher, hashed, signed)!
 }
 
-pub fn test_sign_pkcs1v15_check2() {
+fn test_sign_pkcs1v15_check2() {
 	mut ciphertext := '6f4358e5d39e9c09a7a8eef6c97ec8ac6e4d07cc80415d659dee47b136157118b861aef3627b7103e3c23527f8e5e0cf99f4022bd6aa58072896e90e3e84b1919f2f554d94fa110f0e999f3e93c3cd2efbe88f06f49aa44b036ef196adfa725ac77702da82fe7f07dd50ffc5d973e466af7e175a980819f1911a666aa017544893d8a3ad12bf4a3651ddc8f72ffcf3de84c119a00ed18763e14b79c7ac3ea709fe884015fcbe433f8454c4891763603897fc5c96ad552af5b8d1a3ff3c181167b8c7010c83c9622683d51ba6239d1ef7a167d19ada9d0dcdab7b05cbde989a0ce2a5a43448d2976ef5bd3190de0c3e102d8de1d378c94057a226255f370e9248'
 	use_sign_pkcs1v15_check_test(hasher_sha1, ciphertext)!
 
@@ -95,7 +95,7 @@ pub fn test_sign_pkcs1v15_check2() {
 	use_sign_pkcs1v15_check_test(hasher_ripemd160, ciphertext)!
 }
 
-pub fn test_sign_pkcs1v15_with_generate_key() {
+fn test_sign_pkcs1v15_with_generate_key() {
 	mut rng := get_rng()
 
 	prikey := generate_key(mut rng, 1024)!
@@ -110,7 +110,7 @@ pub fn test_sign_pkcs1v15_with_generate_key() {
 	verify_pkcs1v15(pubkey, hasher_sha256, hashed, signed)!
 }
 
-pub fn use_sign_pkcs1v15_test(hasher IHasher) ! {
+fn use_sign_pkcs1v15_test(hasher IHasher) ! {
 	prikey := get_prikey()!
 	pubkey := prikey.public()
 
@@ -123,7 +123,7 @@ pub fn use_sign_pkcs1v15_test(hasher IHasher) ! {
 	verify_pkcs1v15(pubkey, hasher, hashed, signed)!
 }
 
-pub fn test_sign_pkcs1v15_list() {
+fn test_sign_pkcs1v15_list() {
 	use_sign_pkcs1v15_test(hasher_md5)!
 	use_sign_pkcs1v15_test(hasher_sha1)!
 	use_sign_pkcs1v15_test(hasher_sha224)!

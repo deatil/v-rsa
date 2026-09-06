@@ -41,7 +41,7 @@ fn get_prikey() !PrivateKey {
 	return prikey
 }
 
-pub fn test_sign_pss() {
+fn test_sign_pss() {
 	prikey := get_prikey()!
 	pubkey := prikey.public()
 
@@ -62,7 +62,7 @@ pub fn test_sign_pss() {
 	verify_pss(pubkey, mut d, hashed, signed)!
 }
 
-pub fn test_sign_pss2() {
+fn test_sign_pss2() {
 	prikey := get_prikey()!
 	pubkey := prikey.public()
 
@@ -85,7 +85,7 @@ pub fn test_sign_pss2() {
 	verify_pss(pubkey, mut d, hashed, signed, opts)!
 }
 
-pub fn test_sign_pss3() {
+fn test_sign_pss3() {
 	prikey := get_prikey()!
 	pubkey := prikey.public()
 
@@ -109,7 +109,7 @@ pub fn test_sign_pss3() {
 	verify_pss(pubkey, mut d, hashed, signed, opts)!
 }
 
-pub fn test_verify_pss_check() {
+fn test_verify_pss_check() {
 	prikey := get_prikey()!
 	pubkey := prikey.public()
 
@@ -126,7 +126,7 @@ pub fn test_verify_pss_check() {
 	verify_pss(pubkey, mut d, hashed, signed)!
 }
 
-pub fn test_verify_pss_check_fail() {
+fn test_verify_pss_check_fail() {
 	prikey := get_prikey()!
 	pubkey := prikey.public()
 

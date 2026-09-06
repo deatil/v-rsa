@@ -26,7 +26,7 @@ pub fn rand_prime(mut random rand.PRNG, bits int) !big.Integer {
 		bytes[0] &= u8(int(1 << b) - 1)
 
 		if b >= 2 {
-			bytes[0] |= 3 << (b - 2)
+			bytes[0] |= u8(3 << (b - 2))
 		} else {
 			// Here b==1, because b cannot be zero.
 			bytes[0] |= 1

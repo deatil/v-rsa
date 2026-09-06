@@ -3,31 +3,7 @@ module rsa
 import math.big
 import x.encoding.asn1
 
-struct PrikeyData {
-	version asn1.Integer
-	n       asn1.Integer
-	e       asn1.Integer
-	d       asn1.Integer
-	p       asn1.Integer
-	q       asn1.Integer
-}
-
-fn encode_prikey_data(data PrikeyData) ![]u8 {
-	seq := asn1.Sequence{}
-
-	seq.add_element(data.version)!
-	seq.add_element(data.n)!
-	seq.add_element(data.e)!
-	seq.add_element(data.d)!
-	seq.add_element(data.p)!
-	seq.add_element(data.q)!
-
-	new_data := asn1.encode(seq)!
-
-	return new_data
-}
-
-fn decode_prikey_data(bytes []u8) !PrikeyData {
+pub fn parse_prikey_pkcs1_der(bytes []u8) !PrivateKey {
 	elem := asn1.decode(bytes)!
 	assert elem.tag().equal(asn1.default_sequence_tag)
 
@@ -38,29 +14,23 @@ fn decode_prikey_data(bytes []u8) !PrikeyData {
 		return error('v-rsa: prikey der error')
 	}
 
-	version := fields[0].into_object[asn1.Integer]()!
-	n := fields[1].into_object[asn1.Integer]()!
-	e := fields[2].into_object[asn1.Integer]()!
-	d := fields[3].into_object[asn1.Integer]()!
-	p := fields[4].into_object[asn1.Integer]()!
-	q := fields[5].into_object[asn1.Integer]()!
+	version_int := fields[0].into_object[asn1.Integer]()!
+	n_int := fields[1].into_object[asn1.Integer]()!
+	e_int := fields[2].into_object[asn1.Integer]()!
+	d_int := fields[3].into_object[asn1.Integer]()!
+	p_int := fields[4].into_object[asn1.Integer]()!
+	q_int := fields[5].into_object[asn1.Integer]()!
 
-	return PrikeyData{version, n, e, d, p, q}
-}
-
-pub fn parse_prikey_pkcs1_der(bytes []u8) !PrivateKey {
-	data := decode_prikey_data(bytes)!
-
-	version := data.version.as_i64()!
+	version := version_int.as_i64()!
 	if version != 0 && version != 1 {
 		return error('v-rsa: RSA PKCS1 private key version is error')
 	}
 
-	n := big.integer_from_radix(data.n.hex(), 16)!
-	e := data.e.as_i64()!
-	d := big.integer_from_radix(data.d.hex(), 16)!
-	p := big.integer_from_radix(data.p.hex(), 16)!
-	q := big.integer_from_radix(data.q.hex(), 16)!
+	n := big.integer_from_radix(n_int.hex(), 16)!
+	e := e_int.as_i64()!
+	d := big.integer_from_radix(d_int.hex(), 16)!
+	p := big.integer_from_radix(p_int.hex(), 16)!
+	q := big.integer_from_radix(q_int.hex(), 16)!
 
 	mut prikey := PrivateKey{
 		PublicKey: PublicKey{
@@ -84,31 +54,21 @@ pub fn make_prikey_pkcs1_der(prikey PrivateKey) ![]u8 {
 	p := asn1.Integer.from_hex(prikey.primes[0].hex())!
 	q := asn1.Integer.from_hex(prikey.primes[1].hex())!
 
-	data := PrikeyData{version, n, e, d, p, q}
-	new_data := encode_prikey_data(data)!
-
-	return new_data
-}
-
-// =====
-
-struct PubkeyData {
-	n asn1.Integer
-	e asn1.Integer
-}
-
-fn encode_pubkey_data(data PubkeyData) ![]u8 {
 	seq := asn1.Sequence{}
 
-	seq.add_element(data.n)!
-	seq.add_element(data.e)!
+	seq.add_element(version)!
+	seq.add_element(n)!
+	seq.add_element(e)!
+	seq.add_element(d)!
+	seq.add_element(p)!
+	seq.add_element(q)!
 
 	new_data := asn1.encode(seq)!
 
 	return new_data
 }
 
-fn decode_pubkey_data(bytes []u8) !PubkeyData {
+pub fn parse_pubkey_pkcs1_der(bytes []u8) !PublicKey {
 	elem := asn1.decode(bytes)!
 	assert elem.tag().equal(asn1.default_sequence_tag)
 
@@ -119,17 +79,11 @@ fn decode_pubkey_data(bytes []u8) !PubkeyData {
 		return error('v-rsa: pubkey der error')
 	}
 
-	n := fields[0].into_object[asn1.Integer]()!
-	e := fields[1].into_object[asn1.Integer]()!
+	n_int := fields[0].into_object[asn1.Integer]()!
+	e_int := fields[1].into_object[asn1.Integer]()!
 
-	return PubkeyData{n, e}
-}
-
-pub fn parse_pubkey_pkcs1_der(bytes []u8) !PublicKey {
-	data := decode_pubkey_data(bytes)!
-
-	n := big.integer_from_radix(data.n.hex(), 16)!
-	e := data.e.as_i64()!
+	n := big.integer_from_radix(n_int.hex(), 16)!
+	e := e_int.as_i64()!
 
 	pubkey := PublicKey{
 		n: n
@@ -143,8 +97,12 @@ pub fn make_pubkey_pkcs1_der(pubkey PublicKey) ![]u8 {
 	n := asn1.Integer.from_hex(pubkey.n.hex())!
 	e := asn1.Integer.from_int(pubkey.e)
 
-	data := PubkeyData{n, e}
-	new_data := encode_pubkey_data(data)!
+	seq := asn1.Sequence{}
+
+	seq.add_element(n)!
+	seq.add_element(e)!
+
+	new_data := asn1.encode(seq)!
 
 	return new_data
 }

@@ -32,13 +32,33 @@ pub fn parse_prikey_pkcs1_der(bytes []u8) !PrivateKey {
 	p := big.integer_from_radix(p_int.hex(), 16)!
 	q := big.integer_from_radix(q_int.hex(), 16)!
 
+	mut primes := []big.Integer{}
+	primes << p
+	primes << q
+
+	if version == 1 {
+		crts_seq := fields[9].into_object[asn1.Sequence]()!
+		crts_fields := crts_seq.fields()
+
+		for i := 0; i < crts_fields.len; i++ {
+			crts_seq2 := crts_fields[i].into_object[asn1.Sequence]()!
+			crts_fields2 := crts_seq2.fields()
+
+			prime_int := crts_fields2[0].into_object[asn1.Integer]()!
+			prime := big.integer_from_radix(prime_int.hex(), 16)!
+
+			// crt_seq = [prime, exp, coeff]
+			primes << prime
+		}
+	}
+
 	mut prikey := PrivateKey{
 		PublicKey: PublicKey{
 			n: n
 			e: int(e)
 		}
 		d:         d
-		primes:    [p, q]
+		primes:    primes
 	}
 
 	prikey.precompute()!
@@ -47,21 +67,55 @@ pub fn parse_prikey_pkcs1_der(bytes []u8) !PrivateKey {
 }
 
 pub fn make_prikey_pkcs1_der(prikey PrivateKey) ![]u8 {
-	version := asn1.Integer.from_int(0)
 	n := asn1.Integer.from_hex(prikey.n.hex())!
 	e := asn1.Integer.from_int(prikey.e)
 	d := asn1.Integer.from_hex(prikey.d.hex())!
 	p := asn1.Integer.from_hex(prikey.primes[0].hex())!
 	q := asn1.Integer.from_hex(prikey.primes[1].hex())!
+	dp := asn1.Integer.from_hex(prikey.precomputed.dp.hex())!
+	dq := asn1.Integer.from_hex(prikey.precomputed.dq.hex())!
+	q_inv := asn1.Integer.from_hex(prikey.precomputed.q_inv.hex())!
 
 	seq := asn1.Sequence{}
 
-	seq.add_element(version)!
+	if prikey.primes.len > 2 {
+		version := asn1.Integer.from_int(1)
+		seq.add_element(version)!
+	} else {
+		version := asn1.Integer.from_int(0)
+		seq.add_element(version)!
+	}
 	seq.add_element(n)!
 	seq.add_element(e)!
 	seq.add_element(d)!
 	seq.add_element(p)!
 	seq.add_element(q)!
+	seq.add_element(dp)!
+	seq.add_element(dq)!
+	seq.add_element(q_inv)!
+
+	if prikey.primes.len > 2 {
+		crts_seq := asn1.Sequence{}
+
+		for i := 2; i < prikey.primes.len; i++ {
+			prime := asn1.Integer.from_hex(prikey.primes[i].hex())!
+
+			crt_value := prikey.precomputed.crt_values[i-2]
+			exp := asn1.Integer.from_hex(crt_value.exp.hex())!
+			coeff := asn1.Integer.from_hex(crt_value.coeff.hex())!
+
+			// crt_seq = [prime, exp, coeff]
+			crt_seq := asn1.Sequence{}
+
+			crt_seq.add_element(prime)!
+			crt_seq.add_element(exp)!
+			crt_seq.add_element(coeff)!
+
+			crts_seq.add_element(crt_seq)!
+		}
+
+		seq.add_element(crts_seq)!
+	}
 
 	new_data := asn1.encode(seq)!
 

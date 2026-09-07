@@ -2,9 +2,20 @@ module rsa
 
 import rand
 import math.big
+import crypto.pem
 
 pub fn bigint_copy(x big.Integer) big.Integer {
 	return x + big.zero_int
+}
+
+pub fn encode_pem(block_type string, data []u8) !string {
+	b := pem.Block{
+		block_type: block_type
+		data:       data
+	}
+
+	pem_str := b.encode()!
+	return pem_str
 }
 
 pub fn rand_prime(mut random rand.PRNG, bits int) !big.Integer {

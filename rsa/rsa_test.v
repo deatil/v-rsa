@@ -178,16 +178,13 @@ fn test_private_key_precompute() {
 	p := big.integer_from_radix('cc558bc7e22c34a9b5012f75ed39ccb284f2f4a64af78652b5cb6f77999202344161192ae63a5cd048d1943b80b98a66e15142187efc2d471f0f7d258843790d87b190a2a522a299b3b8ccf1d250b3003394d29ff6a9a79bbf9b08219d45969147dad74b44ad223adbebf48a2a0dd9ad394a8838fc8bbadc7025001663e4b46b', 16)!
 	q := big.integer_from_radix('c4c5b893ac7215a18383cba6b27bb4e0f8a7890649da0c26c317d1703c16ae7f875686002f840857d814d75ada28b7ac54e3b7a1db6af3a8b67b780beb90a32f80eebb839bdeecf309faca921dd00aeb359aa4b1b93c0357df1c52dcd992548f6739b243630a6149293f8480d38b6ce2b4d603dc5d9d21914a08e3cf020067f5', 16)!
 
-	c1 := big.integer_from_radix('c4c5b893ac7215a18383cba6b27bb4e0f8a7890647da0c26c317d1703c16ae7f875686002f840857d814d75ada28b7ac54e3b7a1db6af3a8b67b780beb90a32f80eebb839bdeecf309faca921dd00aeb359aa4b1b93c0357df1c52dcd992548f6739b243630a6149293f8480d38b6ce2b4d603dc5d9d21914a08e3cf020067f5', 16)!
-	c2 := big.integer_from_radix('c4c5b893ac7215a18383cba6b27bb4e0f8a7890647da0c26c317d1703c16ae7f875686002f840857d814d75ada28b7ac54e3b7a1db6af3a8b67b780beb90a32f80eebb839bdeecf309faca921dd00aeb359aa4b1b93c0357df1c52dcd992548f6739b243630a6149293f8480d38b6ce2b4d603dc5d9d21914a08e3cf020067f8', 16)!
-
 	mut prikey := PrivateKey{
 		PublicKey: PublicKey{
 			n: n
 			e: e.int()
 		}
 		d:         d
-		primes:    [p, q, c1, c2]
+		primes:    [p, q]
 	}
 
 	prikey.precompute()!
@@ -224,7 +221,7 @@ fn test_private_key_precompute_legacy() {
 		primes:    [p, q, c1, c2]
 	}
 
-	prikey.precompute_legacy()!
+	prikey.precompute()!
 
 	assert 256 == prikey.size()
 

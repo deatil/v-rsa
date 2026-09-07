@@ -127,8 +127,8 @@ pub fn (priv PrivateKey) validate() ! {
 // Precompute performs some calculations that speed up private key operations
 // in the future.
 pub fn (mut priv PrivateKey) precompute() ! {
-	if priv.precomputed.dp.int() != 0 {
-		return
+	if priv.primes.len > 2 {
+		return priv.precompute_legacy()
 	}
 
 	priv.precomputed.dp = priv.d % (priv.primes[0] - big_one)
@@ -138,11 +138,7 @@ pub fn (mut priv PrivateKey) precompute() ! {
 }
 
 // precompute crt_values
-pub fn (mut priv PrivateKey) precompute_legacy() ! {
-	if priv.precomputed.dp.int() != 0 {
-		return
-	}
-
+fn (mut priv PrivateKey) precompute_legacy() ! {
 	priv.precomputed.dp = priv.d % (priv.primes[0] - big_one)
 	priv.precomputed.dq = priv.d % (priv.primes[1] - big_one)
 	priv.precomputed.q_inv = priv.primes[1].mod_inverse(priv.primes[0])!

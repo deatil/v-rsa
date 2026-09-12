@@ -115,6 +115,19 @@ verify_pss(pubkey PublicKey, mut h hash.Hash, digest []u8, sig []u8, opts PSSOpt
  - `hasher_sha512`: rsa.hasher_sha512
  - `hasher_ripemd160`: rsa.hasher_ripemd160
 
+custom hasher (example sm3):
+
+~~~v
+import deatil.sm3
+
+pub const hasher_sm3 = Hasher{
+	prefixe: [u8(0x30), 0x30, 0x30, 0x0c, 0x06, 0x08, 0x2a, 0x81, 0x1c, 0xcf, 0x55, 0x01, 0x83, 0x78, 0x05, 0x00, 0x04, 0x20]
+	hash:    fn () hash.Hash {
+		return sm3.new()
+	}
+}
+~~~
+
 
 ### Parse PublicKey
 

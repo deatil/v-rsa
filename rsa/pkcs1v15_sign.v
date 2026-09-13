@@ -45,6 +45,9 @@ pub fn (h Hasher) hash_msg(msg []u8) ![]u8 {
 	return d.sum([])
 }
 
+pub const hasher_none = Hasher{
+	prefixe: []
+}
 pub const hasher_md5 = Hasher{
 	prefixe: [u8(0x30), 0x20, 0x30, 0x0c, 0x06, 0x08, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x02, 0x05, 0x05, 0x00, 0x04, 0x10]
 	hash:    fn () hash.Hash {
@@ -130,12 +133,7 @@ pub const hasher_ripemd160 = Hasher{
 // function. If hash is zero, hashed is signed directly. This isn't
 // advisable except for interoperability.
 pub fn sign_pkcs1v15(priv PrivateKey, hasher IHasher, hashed []u8) ![]u8 {
-	hash_len := hasher.hash_size()
-	prefix := hasher.hash_prefixe()
-
-	if hashed.len != hash_len {
-		return error('v-rsa: input must be hashed message')
-	}
+    hash_len, prefix := pkcs1v15_hash_info(hasher, hashed.len)!
 
 	t_len := prefix.len + hash_len
 	k := priv.size()
@@ -170,12 +168,7 @@ pub fn sign_pkcs1v15(priv PrivateKey, hasher IHasher, hashed []u8) ![]u8 {
 // returning a nil error. If hash is zero then hashed is used directly. This
 // isn't advisable except for interoperability.
 pub fn verify_pkcs1v15(pubkey PublicKey, hasher IHasher, hashed []u8, sig []u8) ! {
-	hash_len := hasher.hash_size()
-	prefix := hasher.hash_prefixe()
-
-	if hashed.len != hash_len {
-		return error('v-rsa: input must be hashed message')
-	}
+    hash_len, prefix := pkcs1v15_hash_info(hasher, hashed.len)!
 
 	t_len := prefix.len + hash_len
 	k := pubkey.size()
@@ -213,4 +206,18 @@ pub fn verify_pkcs1v15(pubkey PublicKey, hasher IHasher, hashed []u8, sig []u8) 
 	if ok != 1 {
 		return ErrVerification{}
 	}
+}
+
+fn pkcs1v15_hash_info(hasher IHasher, in_len int) !(int, []u8) {
+	prefix := hasher.hash_prefixe()
+    if prefix.len == 0 {
+        return in_len, []u8{}
+    }
+
+	hash_len := hasher.hash_size()
+    if in_len != hash_len {
+        return error("v-rsa: input must be hashed message")
+    }
+
+    return hash_len, prefix
 }

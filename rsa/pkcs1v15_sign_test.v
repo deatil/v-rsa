@@ -3,7 +3,9 @@ module rsa
 import rand.seed
 import rand.mt19937
 import math.big
+import crypto.pem
 import encoding.hex
+import encoding.base64
 
 fn from_hex(str string) ![]u8 {
 	bytes := hex.decode(str)!
@@ -36,6 +38,23 @@ fn get_prikey() !PrivateKey {
 	}
 
 	prikey.precompute()!
+
+	return prikey
+}
+
+fn get_prikey2() !PrivateKey {
+	prikey_pem := "-----BEGIN RSA TESTING KEY-----
+MIIBOgIBAAJBALKZD0nEffqM1ACuak0bijtqE2QrI/KLADv7l3kK3ppMyCuLKoF0
+fd7Ai2KW5ToIwzFofvJcS/STa6HA5gQenRUCAwEAAQJBAIq9amn00aS0h/CrjXqu
+/ThglAXJmZhOMPVn4eiu7/ROixi9sex436MaVeMqSNf7Ex9a8fRNfWss7Sqd9eWu
+RTUCIQDasvGASLqmjeffBNLTXV2A5g4t+kLVCpsEIZAycV5GswIhANEPLmax0ME/
+EO+ZJ79TJKN5yiGBRsv5yvx5UiHxajEXAiAhAol5N4EUyq6I9w1rYdhPMGpLfk7A
+IU2snfRJ6Nq2CQIgFrPsWRCkV+gOYcajD17rEqmuLrdIRexpg8N1DOSXoJ8CIGlS
+tAboUGBxTDq3ZroNism3DaMIbKPyYrAqhKov1h5V
+-----END RSA TESTING KEY-----"
+
+	block, _ := pem.decode(prikey_pem) or {pem.Block{}, ""}
+	prikey := parse_prikey_pkcs1_der(block.data)!
 
 	return prikey
 }
@@ -137,4 +156,23 @@ fn test_sign_pkcs1v15_list() {
 	use_sign_pkcs1v15_test(hasher_sha3_384)!
 	use_sign_pkcs1v15_test(hasher_sha3_512)!
 	use_sign_pkcs1v15_test(hasher_ripemd160)!
+}
+
+fn test_unpadded_signature() {
+	prikey := get_prikey2()!
+
+    msg := "Thu Dec 19 18:06:16 EST 2013\n"
+
+    // This base64 value was generated with:
+    // % echo Thu Dec 19 18:06:16 EST 2013 > /tmp/msg
+    // % openssl rsautl -sign -inkey key -out /tmp/sig -in /tmp/msg
+    //
+    // Where "key" contains the RSA private key given at the bottom of this
+    // file.
+	expected_sig := base64.url_decode_str("pX4DR8azytjdQ1rtUiC040FjkepuQut5q2ZFX1pTjBrOVKNjgsCDyiJDGZTCNoh9qpXYbhl7iEym30BWWwuiZg==")
+
+    sig := sign_pkcs1v15(prikey, hasher_none, msg.bytes())!
+	assert expected_sig.bytes() == sig
+
+    verify_pkcs1v15(prikey.PublicKey, hasher_none, msg.bytes(), sig)!
 }

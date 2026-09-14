@@ -126,6 +126,14 @@ pub const hasher_ripemd160 = Hasher{
 		return ripemd160.new()
 	}
 }
+/*
+pub const hasher_sm3 = Hasher{
+	prefixe: [u8(0x30), 0x30, 0x30, 0x0c, 0x06, 0x08, 0x2a, 0x81, 0x1c, 0xcf, 0x55, 0x01, 0x83, 0x78, 0x05, 0x00, 0x04, 0x20]
+	hash:    fn () hash.Hash {
+		return sm3.new()
+	}
+}
+*/
 
 // sign_pkcs1v15 calculates the signature of hashed using
 // RSASSA-PKCS1-V1_5-SIGN from RSA PKCS #1 v1.5.  Note that hashed must

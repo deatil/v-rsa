@@ -2,7 +2,6 @@ module rsa
 
 import rand
 import hash
-import math.big
 import subtle
 
 // OAEPOptions corresponds to options for OAEP decryption.
@@ -124,15 +123,8 @@ fn encrypt_oaep_internal(mut h hash.Hash, mut mgf_h hash.Hash, mut random rand.P
 	copy(mut em[1..1 + hash_size], seed)
 	copy(mut em[1 + hash_size..], db)
 
-	m := big.integer_from_bytes(em)
-	c := encrypt(pubkey, m)!
-
-	mut out := []u8{len: k}
-
-	c_bytes, _ := c.bytes()
-	copy(mut out[k - c_bytes.len..], c_bytes)
-
-	return out
+	c := encrypt(pubkey, em)!
+	return c
 }
 
 fn decrypt_oaep_internal(mut h hash.Hash, mut mgf_h hash.Hash, priv PrivateKey, ciphertext []u8, label []u8) ![]u8 {
@@ -145,17 +137,11 @@ fn decrypt_oaep_internal(mut h hash.Hash, mut mgf_h hash.Hash, priv PrivateKey, 
 		return ErrDecryption{}
 	}
 
-	c := big.integer_from_bytes(ciphertext)
-
-	m := decrypt(priv, c)!
+	em := decrypt_without_check(priv, ciphertext)!
 
 	h.reset()
 	h.write(label)!
 	l_hash := h.sum([])
-
-	mut em := []u8{len: k}
-	m_bytes, _ := m.bytes()
-	copy(mut em[k - m_bytes.len..], m_bytes)
 
 	first_byte_is_zero := subtle.constant_time_byte_eq(em[0], 0)
 

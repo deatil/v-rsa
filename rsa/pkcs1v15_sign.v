@@ -1,7 +1,6 @@
 module rsa
 
 import hash
-import math.big
 import crypto.md5
 import crypto.sha1
 import crypto.sha256
@@ -159,15 +158,8 @@ pub fn sign_pkcs1v15(priv PrivateKey, hasher IHasher, hashed []u8) ![]u8 {
 	copy(mut em[k - t_len..k - hash_len], prefix)
 	copy(mut em[k - hash_len..k], hashed)
 
-	m := big.integer_from_bytes(em)
-	c := decrypt_and_check(priv, m)!
-
-	mut out := []u8{len: k}
-
-	c_bytes, _ := c.bytes()
-	copy(mut out[k - c_bytes.len..], c_bytes)
-
-	return out
+	s := decrypt_with_check(priv, em)!
+	return s
 }
 
 // verify_pkcs1v15 verifies an RSA PKCS #1 v1.5 signature.
@@ -191,13 +183,7 @@ pub fn verify_pkcs1v15(pubkey PublicKey, hasher IHasher, hashed []u8, sig []u8) 
 		return ErrVerification{}
 	}
 
-	c := big.integer_from_bytes(sig)
-	m := encrypt(pubkey, c)!
-
-	mut em := []u8{len: k}
-
-	m_bytes, _ := m.bytes()
-	copy(mut em[k - m_bytes.len..], m_bytes)
+	em := encrypt(pubkey, sig)!
 
 	// EM = 0x00 || 0x01 || PS || 0x00 || T
 

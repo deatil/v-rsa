@@ -46,16 +46,26 @@ fn mgf1_xor(mut out []u8, mut h hash.Hash, seed []u8) ! {
 	}
 }
 
-fn encrypt(pubkey PublicKey, m big.Integer) !big.Integer {
+fn encrypt(pubkey PublicKey, plaintext []u8) ![]u8 {
+	m := big.integer_from_bytes(plaintext)
+
 	e := big.integer_from_int(pubkey.e)
-	mut m2 := bigint_copy(m)
-	c := m2.big_mod_pow(e, pubkey.n)!
-	return c
+	c := m.big_mod_pow(e, pubkey.n)!
+
+	k := pubkey.size()
+	mut out := []u8{len: k}
+
+	c_bytes, _ := c.bytes()
+	copy(mut out[k - c_bytes.len..], c_bytes)
+
+	return out
 }
 
 // decrypt performs an RSA decryption, resulting in a plaintext integer. If a
 // random source is given, RSA blinding is used.
-fn decrypt(priv PrivateKey, c big.Integer) !big.Integer {
+fn decrypt(priv PrivateKey, ciphertext []u8, check bool) ![]u8 {
+	c := big.integer_from_bytes(ciphertext)
+
 	if c > priv.n {
 		return ErrDecryption{}
 	}
@@ -99,18 +109,41 @@ fn decrypt(priv PrivateKey, c big.Integer) !big.Integer {
 		}
 	}
 
-	return m
-}
+	if check {
+		e := big.integer_from_int(priv.e)
+		c2 := m.big_mod_pow(e, priv.n)!
 
-fn decrypt_and_check(priv PrivateKey, c big.Integer) !big.Integer {
-	m := decrypt(priv, c)!
-
-	// In order to defend against errors in the CRT computation, m^e is
-	// calculated, which should match the original ciphertext.
-	check := encrypt(priv.PublicKey, m)!
-	if !(c == check) {
-		return error('v-rsa: internal error')
+		if !(c == c2) {
+			return error('v-rsa: internal error')
+		}
 	}
 
-	return m
+	k := priv.size()
+	mut out := []u8{len: k}
+
+	m_bytes, _ := m.bytes()
+	copy(mut out[k - m_bytes.len..], m_bytes)
+
+	return out
+}
+
+const with_check = true
+const no_check = false
+
+fn decrypt_without_check(priv PrivateKey, ciphertext []u8) ![]u8 {
+	return decrypt(priv, ciphertext, no_check)
+}
+
+fn decrypt_with_check(priv PrivateKey, ciphertext []u8) ![]u8 {
+	return decrypt(priv, ciphertext, with_check)
+}
+
+// ========
+
+fn encrypt_privatekey(priv PrivateKey, plaintext []u8) ![]u8 {
+	return decrypt_without_check(priv, plaintext)
+}
+
+fn decrypt_publickey(pubkey PublicKey, ciphertext []u8) ![]u8 {
+	return encrypt(pubkey, ciphertext)
 }

@@ -1,7 +1,6 @@
 module rsa
 
 import rand
-import math.big
 import subtle
 
 // This file implements encryption and decryption using PKCS #1 v1.5 padding.
@@ -25,51 +24,14 @@ pub:
 // encrypting the same message twice doesn't result in the same
 // ciphertext.
 pub fn encrypt_pkcs1v15(mut random rand.PRNG, pubkey PublicKey, msg []u8) ![]u8 {
-	check_pub(pubkey)!
+	return encrypt_with_opts(mut random, pubkey, msg, padding: .pkcs1_padding)
 
-	k := pubkey.size()
-	if msg.len > k - 11 {
-		return ErrMessageTooLong{}
-	}
-
-	// EM = 0x00 || 0x02 || PS || 0x00 || M
-	mut em := []u8{len: k}
-	em[1] = 2
-
-	mut ps := []u8{len: (em.len - msg.len - 3)}
-	mut mm := []u8{len: msg.len}
-
-	non_zero_random_bytes(mut ps, mut random)
-
-	em[em.len - msg.len - 1] = 0
-
-	copy(mut mm, msg)
-
-	copy(mut em[2..(em.len - msg.len - 1)], ps)
-	copy(mut em[(em.len - msg.len)..], mm)
-
-	m := big.integer_from_bytes(em)
-	c := encrypt(pubkey, m)!
-
-	mut out := []u8{len: k}
-
-	c_bytes, _ := c.bytes()
-	copy(mut out[k - c_bytes.len..], c_bytes)
-
-	return out
 }
 
 // decrypt_pkcs1v15 decrypts a plaintext using RSA and the padding scheme from PKCS #1 v1.5.
 pub fn decrypt_pkcs1v15(priv PrivateKey, ciphertext []u8) ![]u8 {
-	check_pub(priv.PublicKey)!
+	return decrypt_with_opts(priv, ciphertext, padding: .pkcs1_padding)
 
-	valid, out, index := decrypt_pkcs1v15_internal(priv, ciphertext)!
-
-	if valid == 0 {
-		return ErrDecryption{}
-	}
-
-	return out[index..]
 }
 
 // decrypt_pkcs1v15_session_key decrypts a session key using RSA and the padding scheme from PKCS #1 v1.5.
@@ -116,36 +78,15 @@ fn decrypt_pkcs1v15_internal(priv PrivateKey, ciphertext []u8) !(int, []u8, int)
 		return ErrDecryption{}
 	}
 
-	c := big.integer_from_bytes(ciphertext)
-	m := decrypt(priv, c)!
+	em := decrypt_without_check(priv, ciphertext)!
 
-	mut em := []u8{len: k}
-	m_bytes, _ := m.bytes()
-	copy(mut em[k - m_bytes.len..], m_bytes)
+	return rsa_pkcs1_type_2_unpad_internal(em)
+}
 
-	first_byte_zero := subtle.constant_time_byte_eq(em[0], 0)
-	second_byte_two := subtle.constant_time_byte_eq(em[1], 2)
+pub fn encrypt_privatekey_pkcs1v15(priv PrivateKey, msg []u8) ![]u8 {
+	return encrypt_privatekey_with_opts(priv, msg, padding: .pkcs1_padding)
+}
 
-	// The remainder of the plaintext must be a string of non-zero random
-	// octets, followed by a 0, followed by the message.
-	//   lookingForIndex: 1 iff we are still looking for the zero.
-	//   index: the offset of the first zero byte.
-	mut looking_for_index := 1
-
-	mut index := 0
-	for i := 2; i < em.len; i++ {
-		equals0 := subtle.constant_time_byte_eq(em[i], 0)
-
-		index = subtle.constant_time_select(looking_for_index & equals0, i, index)
-		looking_for_index = subtle.constant_time_select(equals0, 0, looking_for_index)
-	}
-
-	// The PS padding must be at least 8 bytes long, and it starts two
-	// bytes into em.
-	valid_ps := subtle.constant_time_less_or_eq(2 + 8, index)
-
-	valid := first_byte_zero & second_byte_two & (~looking_for_index & 1) & valid_ps
-	real_index := subtle.constant_time_select(valid, index + 1, 0)
-
-	return valid, em, real_index
+pub fn decrypt_publickey_pkcs1v15(pubkey PublicKey, ciphertext []u8) ![]u8 {
+	return decrypt_publickey_with_opts(pubkey, ciphertext, padding: .pkcs1_padding)
 }

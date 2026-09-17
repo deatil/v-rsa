@@ -2,7 +2,6 @@ module rsa
 
 import hash
 import rand
-import math.big
 
 // Per RFC 8017, Section 9.1
 //
@@ -210,14 +209,7 @@ fn sign_pss_with_salt(priv PrivateKey, mut h hash.Hash, hashed []u8, salt []u8) 
 	em_bits := priv.n.bit_len() - 1
 	em := emsa_pss_encode(hashed, em_bits, salt, mut h)!
 
-	m := big.integer_from_bytes(em)
-	c := decrypt_and_check(priv, m)!
-
-	mut s := []u8{len: priv.size()}
-
-	c_bytes, _ := c.bytes()
-	copy(mut s[s.len - c_bytes.len..], c_bytes)
-
+	s := decrypt_with_check(priv, em)!
 	return s
 }
 
@@ -290,19 +282,20 @@ pub fn verify_pss(pubkey PublicKey, mut h hash.Hash, digest []u8, sig []u8, opts
 		return ErrVerification{}
 	}
 
-	s := big.integer_from_bytes(sig)
-	m := encrypt(pubkey, s)!
-
 	em_bits := pubkey.n.bit_len() - 1
 	em_len := (em_bits + 7) / 8
-	if m.bit_len() > em_len * 8 {
+
+	mut em := encrypt(pubkey, sig) or {
 		return ErrVerification{}
 	}
 
-	mut em := []u8{len: em_len}
+	for em.len > em_len && em.len > 0 {
+		if em[0] != 0 {
+			return ErrVerification{}
+		}
 
-	m_bytes, _ := m.bytes()
-	copy(mut em[em_len - m_bytes.len..], m_bytes)
+		em = em[1..].clone()
+	}
 
 	return emsa_pss_verify(digest, em, em_bits, opts.salt_length(), mut h)
 }

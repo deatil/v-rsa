@@ -126,12 +126,12 @@ fn test_encrypt_privatekey_with_opts() {
 		assert '12345678abcde' == demsg.bytestr()
 	}
 	{
-		ciphertext := 'aa63536e7b909eb56b374ab0a66bed075469d8fc4865f00c8c98b11750d393898206fcf03bebf38317a59c4825b58ad4c7143626f4e345ef649665a388da0469'
+		ciphertext := '3a120a22e2ff5891ae0e04c71c15de4e23feb8209aebb340603384d451c36817096e5af7d4ae63be4952dd89f241d41a5267dbc027adcd3b7db18c563d3d6116'
 		ct := from_hex(ciphertext)!
 
 		demsg := decrypt_publickey_with_opts(pubkey, ct, padding: .x931_padding)!
 		assert demsg.len > 0
-		assert 'rsa PKCS1-v1_5 encrypt and decrypt' == demsg.bytestr()
+		assert '12345678abcde' == demsg.bytestr()
 	}
 
 	msg2 := "rsa PKCS1-v1_5 encrypt and decryptrsa PKCS1-v1_5 encrypt and dec".bytes()
@@ -217,23 +217,6 @@ fn test_encrypt_with_opts() {
 		assert 'rsa PKCS1-v1_5 encrypt and decrypt' == demsg.bytestr()
 	}
 
-	{
-		ciphertext := encrypt_with_opts(mut rng, pubkey, msg, padding: .x931_padding)!
-		assert ciphertext.len > 0
-
-		demsg := decrypt_with_opts(prikey, ciphertext, padding: .x931_padding)!
-		assert demsg.len > 0
-		assert '12345678abcde' == demsg.bytestr()
-	}
-	{
-		ciphertext := 'a8de190dac0aec1c0ad1cdf2eeece64e9e71845475c315d05c06ac6f35a359fa3afcb89175519c450b8e46a9b64ca1f66740e078aa6efc481bbb2eed61dcf5ed'
-		ct := from_hex(ciphertext)!
-
-		demsg := decrypt_with_opts(prikey, ct, padding: .x931_padding)!
-		assert demsg.len > 0
-		assert 'rsa PKCS1-v1_5 encrypt and decrypt' == demsg.bytestr()
-	}
-
 	msg2 := "rsa PKCS1-v1_5 encrypt and decryptrsa PKCS1-v1_5 encrypt and dec".bytes()
 
 	{
@@ -252,25 +235,42 @@ fn test_encrypt_with_opts() {
 		assert demsg.len > 0
 		assert msg2.bytestr() == demsg.bytestr()
 	}
+}
 
-	{
-		msg3 := "rsa PKCS1-v1_5 encrypt and decryptrsa PKCS1-v1_5 encrypt andd".bytes()
-		
-		ciphertext := encrypt_with_opts(mut rng, pubkey, msg3, padding: .x931_padding)!
-		assert ciphertext.len > 0
+fn get_prikey32() !PrivateKey {
+	prikey_pem := "-----BEGIN RSA PRIVATE KEY-----
+MIICWwIBAAKBgQCXkhwdfZkthwkHIjrS6RQHx5QQz99uV6NbnNds/WyKlUDfVoh6
+lVcT85qrqKNLmiC1ThgYkJz4IspZwxiPNbT5fXEJ5VYi30h+61Nu4kgSYPXGbAcV
+mF5XcIcaFgCMh8Is2a0mtDBvv+34Wo8fClWwzeRuf1ghjvxw7Ps0WG2HpwIDAQAB
+AoGAe2bEpynzxUJUkk9HDyIeYbsWjJ2BbkfBwzutlJm7fhTILU05bnwZ2i+SNMHm
+uQ2yJYqASberZMaGcpBJdYcnYFwD7gCuoXxQokoM/AXzCljlcsUTcZLhhz820TQI
+/ZIZ5wmojqW/+08h1rGg5zTgWc0k0Vz3HxIpDDIpAneN7VkCQQDGLQVu+GdvkUZ5
+Oky81y9BBRDNQ1qRv4rghDnJckYK2nrH8mb81Abc2jl5u3CCu2P5D7gu+cDw8OUZ
+hSos236zAkEAw8vdQFCpdr09KdwwwsluNKxAD2rlFlU1bkvZi1qqoiiDn4hSYYJ4
+j6VwSDVi6pNJhLo8Li08yRdN12FFgynNPQJAGeJng0cOu5POEKd8vm2cznFK8ISL
+n93U1d5vbdBvNZuzzcnribpn6xDV0QCagXjYZf+XnwsgGFhelCbAi3tf4QJAdKib
+Ax8MWXsXXkGbq/NofmnDIWyHYm8Sjs0SqT00Pbn18q++peqe+reP1vY4IZvwSezM
+vpaliQshjhqe2C+n4QJAOG1YEz/6HO1WENJSrCYm052XY6WUYWovpoQK7H+s7hjs
+337p1vYdte9DzX7KlWAVjLvW94SPQ4+rfAiseKG7zQ==
+-----END RSA PRIVATE KEY-----"
 
-		demsg := decrypt_with_opts(prikey, ciphertext, padding: .x931_padding)!
-		assert demsg.len > 0
-		assert msg3.bytestr() == demsg.bytestr()
-	}
-	{
-		msg3 := "rsa PKCS1-v1_5 encrypt and decryptrsa PKCS1-v1_5 encrypt and".bytes()
-		
-		ciphertext := encrypt_with_opts(mut rng, pubkey, msg3, padding: .x931_padding)!
-		assert ciphertext.len > 0
+	block1, _ := pem.decode(prikey_pem) or {pem.Block{}, ""}
+	prikey := parse_prikey_pkcs1_der(block1.data)!
 
-		demsg := decrypt_with_opts(prikey, ciphertext, padding: .x931_padding)!
-		assert demsg.len > 0
-		assert msg3.bytestr() == demsg.bytestr()
-	}
+	return prikey
+}
+
+fn test_encrypt_privatekey_with_opts_x931_check() {
+	prikey := get_prikey32()!
+	pubkey := prikey.public()
+
+	msg := 'Hello RSA X9.31'
+
+	ciphertext := '2B576194CCA758B99DE32BB18CEACB77D0EB4AA04E7B44153265F6E812A8F63B2F97F1F06121CEECE7B5B45B22869F067F73D7D97504E2F625324E4127350F711864B6A305F08A50F86FFC0DC52A677A0E9742431193E6F9AB33813390EB403ED8768E14EB237CE15921572BE5870E777468D743032E41DE7FC681EDC1D0824B'
+	ct := from_hex(ciphertext)!
+
+	demsg := decrypt_publickey_with_opts(pubkey, ct, padding: .x931_padding)!
+	assert demsg.len > 0
+	assert msg == demsg.bytestr()
+
 }

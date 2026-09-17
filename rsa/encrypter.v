@@ -24,11 +24,11 @@ pub fn encrypt_with_opts(mut random rand.PRNG, pubkey PublicKey, msg []u8, opts 
 		.pkcs1_padding {
 			rsa_pkcs1_type_2_pad(mut random, k, msg)!
 		}
-		.x931_padding {
-			rsa_x931_pad(k, msg)!
-		}
 		.no_padding {
 			rsa_no_pad(k, msg)!
+		}
+		else {
+			return error('v-rsa: invalid padding type')
 		}
 	}
 
@@ -48,11 +48,11 @@ pub fn decrypt_with_opts(priv PrivateKey, ciphertext []u8, opts EncrypterOptions
 		.pkcs1_padding {
 			rsa_pkcs1_type_2_unpad(k, em)!
 		}
-		.x931_padding {
-			rsa_x931_unpad(k, em)!
-		}
 		.no_padding {
 			rsa_no_unpad(k, em)!
+		}
+		else {
+			return error('v-rsa: invalid padding type')
 		}
 	}
 
@@ -76,7 +76,7 @@ pub fn encrypt_privatekey_with_opts(priv PrivateKey, msg []u8, opts EncrypterOpt
 		}
 	}
 
-	c := encrypt_privatekey(priv, em)!
+	c := encrypt_privatekey(priv, em, opts)!
 
 	return c
 }
@@ -86,7 +86,7 @@ pub fn decrypt_publickey_with_opts(pubkey PublicKey, ciphertext []u8, opts Encry
 
 	k := pubkey.size()
 
-	em := decrypt_publickey(pubkey, ciphertext)!
+	em := decrypt_publickey(pubkey, ciphertext, opts)!
 
 	m := match opts.padding {
 		.pkcs1_padding {

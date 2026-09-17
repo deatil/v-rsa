@@ -8,6 +8,15 @@ pub fn bigint_copy(x big.Integer) big.Integer {
 	return x + big.zero_int
 }
 
+pub fn bigint_bytes(x big.Integer, n int) []u8 {
+	mut out := []u8{len: n}
+
+	bytes, _ := x.bytes()
+	copy(mut out[n - bytes.len..], bytes)
+
+	return out
+}
+
 pub fn encode_pem(block_type string, data []u8) !string {
 	b := pem.Block{
 		block_type: block_type

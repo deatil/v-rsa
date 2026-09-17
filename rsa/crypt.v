@@ -53,11 +53,7 @@ fn encrypt(pubkey PublicKey, plaintext []u8) ![]u8 {
 	c := m.big_mod_pow(e, pubkey.n)!
 
 	k := pubkey.size()
-	mut out := []u8{len: k}
-
-	c_bytes, _ := c.bytes()
-	copy(mut out[k - c_bytes.len..], c_bytes)
-
+	out := bigint_bytes(c, k)
 	return out
 }
 
@@ -119,11 +115,7 @@ fn decrypt(priv PrivateKey, ciphertext []u8, check bool) ![]u8 {
 	}
 
 	k := priv.size()
-	mut out := []u8{len: k}
-
-	m_bytes, _ := m.bytes()
-	copy(mut out[k - m_bytes.len..], m_bytes)
-
+	out := bigint_bytes(m, k)
 	return out
 }
 
@@ -140,10 +132,77 @@ fn decrypt_with_check(priv PrivateKey, ciphertext []u8) ![]u8 {
 
 // ========
 
-fn encrypt_privatekey(priv PrivateKey, plaintext []u8) ![]u8 {
-	return decrypt_without_check(priv, plaintext)
+fn encrypt_privatekey(priv PrivateKey, plaintext []u8, opts EncrypterOptions) ![]u8 {
+	pt := big.integer_from_bytes(plaintext)
+
+	if pt > priv.n {
+		return ErrDecryption{}
+	}
+
+	if priv.n.signum == 0 {
+		return ErrDecryption{}
+	}
+
+	mut c := big.Integer{}
+	if priv.precomputed.dp.int() == 0 {
+		// c = pt^d mod n
+		mut pt2 := bigint_copy(pt)
+		c = pt2.big_mod_pow(priv.d, priv.n)!
+	} else {
+		mut pt2 := bigint_copy(pt)
+
+		// We have the precalculated values needed for the CRT.
+		c = pt2.big_mod_pow(priv.precomputed.dp, priv.primes[0])!
+		mut c2 := pt2.big_mod_pow(priv.precomputed.dq, priv.primes[1])!
+		c = c - c2
+
+		if c.signum < 0 {
+			c = c + priv.primes[0]
+		}
+
+		c = c * priv.precomputed.q_inv
+		c = c % priv.primes[0]
+		c = c * priv.primes[1]
+		c = c + c2
+		for i, values in priv.precomputed.crt_values {
+			prime := priv.primes[2 + i]
+			c2 = pt2.big_mod_pow(values.exp, prime)!
+			c2 = c2 - c
+			c2 = c2 * values.coeff
+			c2 = c2 % prime
+			if c2.signum < 0 {
+				c2 = c2 + prime
+			}
+			c2 = c2 * values.r
+			c = c + c2
+		}
+	}
+
+	if opts.padding == .x931_padding {
+		f := priv.n - c
+		if f < c {
+			c = bigint_copy(f)
+		}
+	}
+
+	k := priv.size()
+	out := bigint_bytes(c, k)
+	return out
 }
 
-fn decrypt_publickey(pubkey PublicKey, ciphertext []u8) ![]u8 {
-	return encrypt(pubkey, ciphertext)
+fn decrypt_publickey(pubkey PublicKey, ciphertext []u8, opts EncrypterOptions) ![]u8 {
+	c := big.integer_from_bytes(ciphertext)
+
+	e := big.integer_from_int(pubkey.e)
+	mut m := c.big_mod_pow(e, pubkey.n)!
+
+	bigint16 := big.integer_from_int(16)
+	m2 := m % bigint16
+	if (opts.padding == .x931_padding) && (m2.int() != 12) {
+		m = pubkey.n - m
+	}
+
+	k := pubkey.size()
+	out := bigint_bytes(m, k)
+	return out
 }

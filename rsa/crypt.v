@@ -196,9 +196,10 @@ fn decrypt_publickey(pubkey PublicKey, ciphertext []u8, opts EncrypterOptions) !
 	e := big.integer_from_int(pubkey.e)
 	mut m := c.big_mod_pow(e, pubkey.n)!
 
-	bigint16 := big.integer_from_int(16)
-	m2 := m % bigint16
-	if (opts.padding == .x931_padding) && (m2.int() != 12) {
+	// it is true if (m & 0xf) != 12
+	bigint15 := big.integer_from_int(0xf)
+	m_last_4bit := m.bitwise_and(bigint15)
+	if (opts.padding == .x931_padding) && (m_last_4bit.int() != 12) {
 		m = pubkey.n - m
 	}
 

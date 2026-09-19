@@ -1,7 +1,7 @@
 Module {
 	name: 'vrsa'
 	description: 'A RSA library for vlang.'
-	version: '0.1.7'
+	version: '0.1.8'
 	license: 'Apache-2.0'
 	dependencies: []
 }

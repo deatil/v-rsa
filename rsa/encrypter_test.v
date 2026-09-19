@@ -101,27 +101,34 @@ fn test_encrypt_privatekey_with_opts() {
 	msg := '12345678abcde'.bytes()
 
 	{
-		ciphertext := encrypt_privatekey_with_opts(prikey, msg)!
+		mut encrypter := Encrypter.new()
+
+		ciphertext := encrypter.encrypt_privatekey(prikey, msg)!
 		assert ciphertext.len > 0
 
-		demsg := decrypt_publickey_with_opts(pubkey, ciphertext)!
+		demsg := encrypter.decrypt_publickey(pubkey, ciphertext)!
 		assert demsg.len > 0
 		assert '12345678abcde' == demsg.bytestr()
 	}
 	{
+		mut encrypter := Encrypter.new()
+
 		ciphertext := '7b1783ab067d84749b14f4da0fe63467a16c087ac1edf552387665e73047ebd1cc881fc064b5b2e427ceebefd50616f9ada687c828416e44bdaf29ed07d62551'
 		ct := from_hex(ciphertext)!
 
-		demsg := decrypt_publickey_with_opts(pubkey, ct)!
+		demsg := encrypter.decrypt_publickey(pubkey, ct)!
 		assert demsg.len > 0
 		assert 'rsa PKCS1-v1_5 encrypt and decrypt' == demsg.bytestr()
 	}
 
 	{
-		ciphertext := encrypt_privatekey_with_opts(prikey, msg, padding: .x931_padding)!
+		mut encrypter := Encrypter.new()
+		encrypter.with_padding(.x931_padding)
+
+		ciphertext := encrypter.encrypt_privatekey(prikey, msg)!
 		assert ciphertext.len > 0
 
-		demsg := decrypt_publickey_with_opts(pubkey, ciphertext, padding: .x931_padding)!
+		demsg := encrypter.decrypt_publickey(pubkey, ciphertext)!
 		assert demsg.len > 0
 		assert '12345678abcde' == demsg.bytestr()
 	}
@@ -129,7 +136,10 @@ fn test_encrypt_privatekey_with_opts() {
 		ciphertext := '3a120a22e2ff5891ae0e04c71c15de4e23feb8209aebb340603384d451c36817096e5af7d4ae63be4952dd89f241d41a5267dbc027adcd3b7db18c563d3d6116'
 		ct := from_hex(ciphertext)!
 
-		demsg := decrypt_publickey_with_opts(pubkey, ct, padding: .x931_padding)!
+		mut encrypter := Encrypter.new()
+		encrypter.with_padding(.x931_padding)
+
+		demsg := encrypter.decrypt_publickey(pubkey, ct)!
 		assert demsg.len > 0
 		assert '12345678abcde' == demsg.bytestr()
 	}
@@ -137,10 +147,13 @@ fn test_encrypt_privatekey_with_opts() {
 	msg2 := "rsa PKCS1-v1_5 encrypt and decryptrsa PKCS1-v1_5 encrypt and dec".bytes()
 
 	{
-		ciphertext := encrypt_privatekey_with_opts(prikey, msg2, padding: .no_padding)!
+		mut encrypter := Encrypter.new()
+		encrypter.with_padding(.no_padding)
+
+		ciphertext := encrypter.encrypt_privatekey(prikey, msg2)!
 		assert ciphertext.len > 0
 
-		demsg := decrypt_publickey_with_opts(pubkey, ciphertext, padding: .no_padding)!
+		demsg := encrypter.decrypt_publickey(pubkey, ciphertext)!
 		assert demsg.len > 0
 		assert msg2.bytestr() == demsg.bytestr()
 	}
@@ -148,7 +161,10 @@ fn test_encrypt_privatekey_with_opts() {
 		ciphertext := '397f0d2b34463c22dee6fb11edcb881d0c0a9d8ba5bb1587cf259ce5d177c7769b5776927be17c687650602a79c0f45317d85010676b90444f27de51b01725a7'
 		ct := from_hex(ciphertext)!
 
-		demsg := decrypt_publickey_with_opts(pubkey, ct, padding: .no_padding)!
+		mut encrypter := Encrypter.new()
+		encrypter.with_padding(.no_padding)
+
+		demsg := encrypter.decrypt_publickey(pubkey, ct)!
 		assert demsg.len > 0
 		assert msg2.bytestr() == demsg.bytestr()
 	}
@@ -156,20 +172,26 @@ fn test_encrypt_privatekey_with_opts() {
 	{
 		msg3 := "rsa PKCS1-v1_5 encrypt and decryptrsa PKCS1-v1_5 encrypt andd".bytes()
 
-		ciphertext := encrypt_privatekey_with_opts(prikey, msg3, padding: .x931_padding)!
+		mut encrypter := Encrypter.new()
+		encrypter.with_padding(.x931_padding)
+
+		ciphertext := encrypter.encrypt_privatekey(prikey, msg3)!
 		assert ciphertext.len > 0
 
-		demsg := decrypt_publickey_with_opts(pubkey, ciphertext, padding: .x931_padding)!
+		demsg := encrypter.decrypt_publickey(pubkey, ciphertext)!
 		assert demsg.len > 0
 		assert msg3.bytestr() == demsg.bytestr()
 	}
 	{
 		msg3 := "rsa PKCS1-v1_5 encrypt and decryptrsa PKCS1-v1_5 encrypt and d".bytes()
 
-		ciphertext := encrypt_privatekey_with_opts(prikey, msg3, padding: .x931_padding)!
+		mut encrypter := Encrypter.new()
+		encrypter.with_padding(.x931_padding)
+
+		ciphertext := encrypter.encrypt_privatekey(prikey, msg3)!
 		assert ciphertext.len > 0
 
-		demsg := decrypt_publickey_with_opts(pubkey, ciphertext, padding: .x931_padding)!
+		demsg := encrypter.decrypt_publickey(pubkey, ciphertext)!
 		assert demsg.len > 0
 		assert msg3.bytestr() == demsg.bytestr()
 	}
@@ -182,10 +204,12 @@ fn test_encrypt_privatekey_with_opts_key() {
 	msg := '12345678abcde'.bytes()
 
 	{
-		ciphertext := encrypt_privatekey_with_opts(prikey, msg)!
+		mut encrypter := Encrypter.new()
+
+		ciphertext := encrypter.encrypt_privatekey(prikey, msg)!
 		assert ciphertext.len > 0
 
-		demsg := decrypt_publickey_with_opts(pubkey, ciphertext)!
+		demsg := encrypter.decrypt_publickey(pubkey, ciphertext)!
 		assert demsg.len > 0
 		assert '12345678abcde' == demsg.bytestr()
 	}
@@ -201,10 +225,13 @@ fn test_encrypt_with_opts() {
 	msg := '12345678abcde'.bytes()
 
 	{
-		ciphertext := encrypt_with_opts(mut rng, pubkey, msg)!
+		mut encrypter := Encrypter.new()
+		encrypter.with_random(mut rng)
+
+		ciphertext := encrypter.encrypt(pubkey, msg)!
 		assert ciphertext.len > 0
 
-		demsg := decrypt_with_opts(prikey, ciphertext)!
+		demsg := encrypter.decrypt(prikey, ciphertext)!
 		assert demsg.len > 0
 		assert '12345678abcde' == demsg.bytestr()
 	}
@@ -212,7 +239,9 @@ fn test_encrypt_with_opts() {
 		ciphertext := '24d17d224f3181383660c4e7d3d4092cc9f7fb015b344aa24afb90e1979fdfc35e7561b1fe217eb18371bf84a8b54e27b043d7b2f69d0418d6621ff0ab10c484'
 		ct := from_hex(ciphertext)!
 
-		demsg := decrypt_with_opts(prikey, ct)!
+		mut encrypter := Encrypter.new()
+
+		demsg := encrypter.decrypt(prikey, ct)!
 		assert demsg.len > 0
 		assert 'rsa PKCS1-v1_5 encrypt and decrypt' == demsg.bytestr()
 	}
@@ -220,10 +249,14 @@ fn test_encrypt_with_opts() {
 	msg2 := "rsa PKCS1-v1_5 encrypt and decryptrsa PKCS1-v1_5 encrypt and dec".bytes()
 
 	{
-		ciphertext := encrypt_with_opts(mut rng, pubkey, msg2, padding: .no_padding)!
+		mut encrypter := Encrypter.new()
+		encrypter.with_random(mut rng)
+		encrypter.with_padding(.no_padding)
+
+		ciphertext := encrypter.encrypt(pubkey, msg2)!
 		assert ciphertext.len > 0
 
-		demsg := decrypt_with_opts(prikey, ciphertext, padding: .no_padding)!
+		demsg := encrypter.decrypt(prikey, ciphertext)!
 		assert demsg.len > 0
 		assert msg2.bytestr() == demsg.bytestr()
 	}
@@ -231,7 +264,10 @@ fn test_encrypt_with_opts() {
 		ciphertext := '2994d74cb93e57f170f964f8401388b42ba904478a2bba2f0839a313f4a067da998003a99a0f8d7957577e86b220aa0536cbb77c0a53b535140e585a6089ca65'
 		ct := from_hex(ciphertext)!
 
-		demsg := decrypt_with_opts(prikey, ct, padding: .no_padding)!
+		mut encrypter := Encrypter.new()
+		encrypter.with_padding(.no_padding)
+
+		demsg := encrypter.decrypt(prikey, ct)!
 		assert demsg.len > 0
 		assert msg2.bytestr() == demsg.bytestr()
 	}
@@ -269,7 +305,10 @@ fn test_encrypt_privatekey_with_opts_x931_check() {
 	ciphertext := '2B576194CCA758B99DE32BB18CEACB77D0EB4AA04E7B44153265F6E812A8F63B2F97F1F06121CEECE7B5B45B22869F067F73D7D97504E2F625324E4127350F711864B6A305F08A50F86FFC0DC52A677A0E9742431193E6F9AB33813390EB403ED8768E14EB237CE15921572BE5870E777468D743032E41DE7FC681EDC1D0824B'
 	ct := from_hex(ciphertext)!
 
-	demsg := decrypt_publickey_with_opts(pubkey, ct, padding: .x931_padding)!
+	mut encrypter := Encrypter.new()
+	encrypter.with_padding(.x931_padding)
+
+	demsg := encrypter.decrypt_publickey(pubkey, ct)!
 	assert demsg.len > 0
 	assert msg == demsg.bytestr()
 

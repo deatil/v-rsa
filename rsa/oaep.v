@@ -2,7 +2,6 @@ module rsa
 
 import rand
 import hash
-import subtle
 
 // OAEPOptions corresponds to options for OAEP decryption.
 @[params]
@@ -103,27 +102,15 @@ fn encrypt_oaep_internal(mut h hash.Hash, mut mgf_h hash.Hash, mut random rand.P
 		return ErrMessageTooLong{}
 	}
 
-	h.reset()
-	h.write(label)!
-	l_hash := h.sum([])
+	mut encrypter := Encrypter.new()
+	encrypter.with_random(mut random)
+	encrypter.with_padding(.oaep_padding)
+	encrypter.with_hash(mut h)
+	encrypter.with_mgf_hash(mut mgf_h)
+	encrypter.with_label(label)
 
-	mut em := []u8{len: k}
-	mut seed := []u8{len: hash_size}
-	mut db := []u8{len: k - (1 + hash_size)}
+	c := encrypter.encrypt(pubkey, msg)!
 
-	copy(mut db[0..hash_size], l_hash)
-	db[db.len - msg.len - 1] = 1
-	copy(mut db[db.len - msg.len..], msg)
-
-	rand_read_full(mut random, mut seed)
-
-	mgf1_xor(mut db, mut mgf_h, seed)!
-	mgf1_xor(mut seed, mut mgf_h, db)!
-
-	copy(mut em[1..1 + hash_size], seed)
-	copy(mut em[1 + hash_size..], db)
-
-	c := encrypt(pubkey, em)!
 	return c
 }
 
@@ -137,42 +124,13 @@ fn decrypt_oaep_internal(mut h hash.Hash, mut mgf_h hash.Hash, priv PrivateKey, 
 		return ErrDecryption{}
 	}
 
-	em := decrypt_without_check(priv, ciphertext)!
+	mut encrypter := Encrypter.new()
+	encrypter.with_padding(.oaep_padding)
+	encrypter.with_hash(mut h)
+	encrypter.with_mgf_hash(mut mgf_h)
+	encrypter.with_label(label)
 
-	h.reset()
-	h.write(label)!
-	l_hash := h.sum([])
+	m := encrypter.decrypt(priv, ciphertext)!
 
-	first_byte_is_zero := subtle.constant_time_byte_eq(em[0], 0)
-
-	mut seed := em[1..hash_size + 1].clone()
-	mut db := em[hash_size + 1..].clone()
-
-	mgf1_xor(mut seed, mut mgf_h, db)!
-	mgf1_xor(mut db, mut mgf_h, seed)!
-
-	l_hash2 := db[0..hash_size].clone()
-
-	l_hash2_good := subtle.constant_time_compare(l_hash, l_hash2)
-
-	mut looking_for_index := int(1)
-	mut index := int(0)
-	mut invalid := int(0)
-
-	rest := db[hash_size..].clone()
-
-	for i := 0; i < rest.len; i++ {
-		equals0 := subtle.constant_time_byte_eq(rest[i], 0)
-		equals1 := subtle.constant_time_byte_eq(rest[i], 1)
-
-		index = subtle.constant_time_select(looking_for_index & equals1, i, index)
-		looking_for_index = subtle.constant_time_select(equals1, 0, looking_for_index)
-		invalid = subtle.constant_time_select(looking_for_index & ~equals0, 1, invalid)
-	}
-
-	if first_byte_is_zero & l_hash2_good & ~invalid & ~looking_for_index != 1 {
-		return ErrDecryption{}
-	}
-
-	return rest[index + 1..]
+	return m
 }

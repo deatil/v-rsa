@@ -24,14 +24,20 @@ pub:
 // encrypting the same message twice doesn't result in the same
 // ciphertext.
 pub fn encrypt_pkcs1v15(mut random rand.PRNG, pubkey PublicKey, msg []u8) ![]u8 {
-	return encrypt_with_opts(mut random, pubkey, msg, padding: .pkcs1_padding)
+	mut encrypter := Encrypter.new()
+	encrypter.with_random(mut random)
+	encrypter.with_padding(.pkcs1_padding)
+
+	return encrypter.encrypt(pubkey, msg)
 
 }
 
 // decrypt_pkcs1v15 decrypts a plaintext using RSA and the padding scheme from PKCS #1 v1.5.
 pub fn decrypt_pkcs1v15(priv PrivateKey, ciphertext []u8) ![]u8 {
-	return decrypt_with_opts(priv, ciphertext, padding: .pkcs1_padding)
+	mut encrypter := Encrypter.new()
+	encrypter.with_padding(.pkcs1_padding)
 
+	return encrypter.decrypt(priv, ciphertext)
 }
 
 // decrypt_pkcs1v15_session_key decrypts a session key using RSA and the padding scheme from PKCS #1 v1.5.
@@ -84,9 +90,15 @@ fn decrypt_pkcs1v15_internal(priv PrivateKey, ciphertext []u8) !(int, []u8, int)
 }
 
 pub fn encrypt_privatekey_pkcs1v15(priv PrivateKey, msg []u8) ![]u8 {
-	return encrypt_privatekey_with_opts(priv, msg, padding: .pkcs1_padding)
+	mut encrypter := Encrypter.new()
+	encrypter.with_padding(.pkcs1_padding)
+
+	return encrypter.encrypt_privatekey(priv, msg)
 }
 
 pub fn decrypt_publickey_pkcs1v15(pubkey PublicKey, ciphertext []u8) ![]u8 {
-	return decrypt_publickey_with_opts(pubkey, ciphertext, padding: .pkcs1_padding)
+	mut encrypter := Encrypter.new()
+	encrypter.with_padding(.pkcs1_padding)
+
+	return encrypter.decrypt_publickey(pubkey, ciphertext)
 }

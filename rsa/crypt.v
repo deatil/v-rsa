@@ -132,7 +132,7 @@ fn decrypt_with_check(priv PrivateKey, ciphertext []u8) ![]u8 {
 
 // ========
 
-fn encrypt_privatekey(priv PrivateKey, plaintext []u8, opts EncrypterOptions) ![]u8 {
+fn encrypt_privatekey(priv PrivateKey, plaintext []u8, padding RsaPadding) ![]u8 {
 	pt := big.integer_from_bytes(plaintext)
 
 	if pt > priv.n {
@@ -178,7 +178,7 @@ fn encrypt_privatekey(priv PrivateKey, plaintext []u8, opts EncrypterOptions) ![
 		}
 	}
 
-	if opts.padding == .x931_padding {
+	if padding == .x931_padding {
 		f := priv.n - c
 		if f < c {
 			c = bigint_copy(f)
@@ -190,7 +190,7 @@ fn encrypt_privatekey(priv PrivateKey, plaintext []u8, opts EncrypterOptions) ![
 	return out
 }
 
-fn decrypt_publickey(pubkey PublicKey, ciphertext []u8, opts EncrypterOptions) ![]u8 {
+fn decrypt_publickey(pubkey PublicKey, ciphertext []u8, padding RsaPadding) ![]u8 {
 	c := big.integer_from_bytes(ciphertext)
 
 	e := big.integer_from_int(pubkey.e)
@@ -199,7 +199,7 @@ fn decrypt_publickey(pubkey PublicKey, ciphertext []u8, opts EncrypterOptions) !
 	// it is true if (m & 0xf) != 12
 	bigint15 := big.integer_from_int(0xf)
 	m_last_4bit := m.bitwise_and(bigint15)
-	if (opts.padding == .x931_padding) && (m_last_4bit.int() != 12) {
+	if (padding == .x931_padding) && (m_last_4bit.int() != 12) {
 		m = pubkey.n - m
 	}
 

@@ -140,23 +140,10 @@ pub const hasher_sm3 = Hasher{
 // function. If hash is zero, hashed is signed directly. This isn't
 // advisable except for interoperability.
 pub fn sign_pkcs1v15(priv PrivateKey, hasher IHasher, hashed []u8) ![]u8 {
-    hash_len, prefix := pkcs1v15_hash_info(hasher, hashed.len)!
+    prefix := pkcs1v15_hash_info(hasher, hashed.len)!
 
-	t_len := prefix.len + hash_len
 	k := priv.size()
-	if k < t_len + 11 {
-		return ErrMessageTooLong{}
-	}
-
-	// EM = 0x00 || 0x01 || PS || 0x00 || T
-	mut em := []u8{len: k}
-	em[1] = 1
-	for i := 2; i < k - t_len - 1; i++ {
-		em[i] = 0xff
-	}
-
-	copy(mut em[k - t_len..k - hash_len], prefix)
-	copy(mut em[k - hash_len..k], hashed)
+	em := emsa_pkcs1v15_encode(hashed, k, prefix)!
 
 	s := decrypt_with_check(priv, em)!
 	return s
@@ -168,32 +155,63 @@ pub fn sign_pkcs1v15(priv PrivateKey, hasher IHasher, hashed []u8) ![]u8 {
 // returning a nil error. If hash is zero then hashed is used directly. This
 // isn't advisable except for interoperability.
 pub fn verify_pkcs1v15(pubkey PublicKey, hasher IHasher, hashed []u8, sig []u8) ! {
-    hash_len, prefix := pkcs1v15_hash_info(hasher, hashed.len)!
+    prefix := pkcs1v15_hash_info(hasher, hashed.len)!
 
-	t_len := prefix.len + hash_len
 	k := pubkey.size()
+	t_len := prefix.len + hashed.len
 	if k < t_len + 11 {
+		return ErrVerification{}
+	}
+
+	em := encrypt(pubkey, sig)!
+
+	emsa_pkcs1v15_verify(hashed, em, k, prefix)!
+}
+
+fn emsa_pkcs1v15_encode(m_hash []u8, em_len int, prefix []u8) ![]u8 {
+	h_len := m_hash.len
+	t_len := prefix.len + h_len
+
+	if em_len < t_len + 11 {
+		return ErrMessageTooLong{}
+	}
+
+	// EM = 0x00 || 0x01 || PS || 0x00 || T
+	mut em := []u8{len: em_len}
+	em[1] = 1
+	for i := 2; i < em_len - t_len - 1; i++ {
+		em[i] = 0xff
+	}
+
+	copy(mut em[em_len - t_len..em_len - h_len], prefix)
+	copy(mut em[em_len - h_len..em_len], m_hash)
+
+	return em
+}
+
+fn emsa_pkcs1v15_verify(m_hash []u8, em []u8, em_len int, prefix []u8) ! {
+	h_len := m_hash.len
+	t_len := prefix.len + h_len
+	if em_len < t_len + 11 {
 		return ErrVerification{}
 	}
 
 	// RFC 8017 Section 8.2.2: If the length of the signature S is not k
 	// octets (where k is the length in octets of the RSA modulus n), output
 	// "invalid signature" and stop.
-	if k != sig.len {
+	if em_len != em.len {
 		return ErrVerification{}
 	}
-
-	em := encrypt(pubkey, sig)!
-
+	
 	// EM = 0x00 || 0x01 || PS || 0x00 || T
 
 	mut ok := subtle.constant_time_byte_eq(em[0], 0)
 	ok &= subtle.constant_time_byte_eq(em[1], 1)
-	ok &= subtle.constant_time_compare(em[k - hash_len..k], hashed)
-	ok &= subtle.constant_time_compare(em[k - t_len..k - hash_len], prefix)
-	ok &= subtle.constant_time_byte_eq(em[k - t_len - 1], 0)
+	ok &= subtle.constant_time_compare(em[em_len - h_len..em_len], m_hash)
+	ok &= subtle.constant_time_compare(em[em_len - t_len..em_len - h_len], prefix)
+	ok &= subtle.constant_time_byte_eq(em[em_len - t_len - 1], 0)
 
-	for i := 2; i < k - t_len - 1; i++ {
+	for i := 2; i < em_len - t_len - 1; i++ {
 		ok &= subtle.constant_time_byte_eq(em[i], 0xff)
 	}
 
@@ -202,10 +220,10 @@ pub fn verify_pkcs1v15(pubkey PublicKey, hasher IHasher, hashed []u8, sig []u8) 
 	}
 }
 
-fn pkcs1v15_hash_info(hasher IHasher, in_len int) !(int, []u8) {
+fn pkcs1v15_hash_info(hasher IHasher, in_len int) ![]u8 {
 	prefix := hasher.hash_prefixe()
     if prefix.len == 0 {
-        return in_len, []u8{}
+        return []u8{}
     }
 
 	hash_len := hasher.hash_size()
@@ -213,5 +231,5 @@ fn pkcs1v15_hash_info(hasher IHasher, in_len int) !(int, []u8) {
         return error("v-rsa: input must be hashed message")
     }
 
-    return hash_len, prefix
+    return prefix
 }

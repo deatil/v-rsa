@@ -93,15 +93,6 @@ pub fn decrypt_oaep_with_opts(priv PrivateKey, ciphertext []u8, opts OAEPOptions
 }
 
 fn encrypt_oaep_internal(mut h hash.Hash, mut mgf_h hash.Hash, mut random rand.PRNG, pubkey PublicKey, msg []u8, label []u8) ![]u8 {
-	check_pub(pubkey)!
-
-	k := pubkey.size()
-
-	hash_size := h.size()
-	if msg.len > k - 2 * hash_size - 2 {
-		return ErrMessageTooLong{}
-	}
-
 	mut encrypter := Encrypter.new()
 	encrypter.with_random(mut random)
 	encrypter.with_padding(.oaep_padding)
@@ -115,15 +106,6 @@ fn encrypt_oaep_internal(mut h hash.Hash, mut mgf_h hash.Hash, mut random rand.P
 }
 
 fn decrypt_oaep_internal(mut h hash.Hash, mut mgf_h hash.Hash, priv PrivateKey, ciphertext []u8, label []u8) ![]u8 {
-	check_pub(priv.public())!
-
-	k := priv.public().size()
-	hash_size := h.size()
-
-	if ciphertext.len > k || k < hash_size * 2 + 2 {
-		return ErrDecryption{}
-	}
-
 	mut encrypter := Encrypter.new()
 	encrypter.with_padding(.oaep_padding)
 	encrypter.with_hash(mut h)

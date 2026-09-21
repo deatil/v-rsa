@@ -2,10 +2,12 @@ module rsa
 
 import crypto.sha1
 import crypto.sha256
+import crypto.sha512
 import rand.seed
 import rand.mt19937
 import math.big
 import encoding.hex
+import encoding.base64
 
 fn from_hex(str string) ![]u8 {
 	bytes := hex.decode(str)!
@@ -117,6 +119,37 @@ fn test_encrypt_oaep_with_opts2() {
 	assert ciphertext.len > 0
 
 	// ciphertext = 75d2af1cf420c6e2b64c5b3e062457059eb2cea9afc01d19e3042105983cbfe1ad97cb782e0a489419d6cc9995c68f19595acdc21883f2815b9ae4bc1938a7a2788920358e67fa2b4974382517bdbe92f18cbf5588ee282cf40fe6a7669555bf6e4da6df96cfeb3ad50a42f501e7aebafdd070d54bbbdf4f1001127a9466114371c1b4f34bf15779bc71e3e017dc056a30a4bcde4c3a9e380e45af4a45e42b808181ef089c418daac4e4af0a65f9bff086e09d898540f5217c7d136979b682c8a394ea44b377c72abae714eb254c70604e6254c8c2f6f4c749805abd169cab062057e41d1df3d5709721b5837425af16db10d3bbe84d06fa3cb94b46360cb490
+
+	demsg := decrypt_oaep_with_opts(prikey, ciphertext, opts)!
+	assert demsg.len > 0
+	assert '12345678abcde' == demsg.bytestr()
+}
+
+fn test_encrypt_oaep_with_opts3() {
+	key_der := 'MIIEowIBAAKCAQEA4f5wg5l2hKsTeNem/V41fGnJm6gOdrj8ym3rFkEU/wT8RDtnSgFEZOQpHEgQ7JL38xUfU0Y3g6aYw9QT0hJ7mCpz9Er5qLaMXJwZxzHzAahlfA0icqabvJOMvQtzD6uQv6wPEyZtDTWiQi9AXwBpHssPnpYGIn20ZZuNlX2BrClciHhCPUIIZOQn/MmqTD31jSyjoQoV7MhhMTATKJx2XrHhR+1DcKJzQBSTAGnpYVaqpsARap+nwRipr3nUTuxyGohBTSmjJ2usSeQXHI3bODIRe1AuTyHceAbewn8b462yEWKARdpd9AjQW5SIVPfdsz5B6GlYQ5LdYKtznTuy7wIDAQABAoIBAQCwia1k7+2oZ2d3n6agCAbqIE1QXfCmh41ZqJHbOY3oRQG3X1wpcGH4Gk+O+zDVTV2JszdcOt7E5dAyMaomETAhRxB7hlIOnEN7WKm+dGNrKRvV0wDU5ReFMRHg31/Lnu8c+5BvGjZX+ky9POIhFFYJqwCRlopGSUIxmVj5rSgtzk3iWOQXr+ah1bjEXvlxDOWkHN6YfpV5ThdEKdBIPGEVqa63r9n2h+qazKrtiRqJqGnOrHzOECYbRFYhexsNFz7YT02xdfSHn7gMIvabDDP/Qp0PjE1jdouiMaFHYnLBbgvlnZW9yuVf/rpXTUq/njxIXMmvmEyyvSDnFcFikB8pAoGBAPF77hK4m3/rdGT7X8a/gwvZ2R121aBcdPwEaUhvj/36dx596zvYmEOjrWfZhF083/nYWE2kVquj2wjs+otCLfifEEgXcVPTnEOPO9Zg3uNSL0nNQghjFuD3iGLTUBCtM66oTe0jLSslHe8gLGEQqyMzHOzYxNqibxcOZIe8Qt0NAoGBAO+UI5+XWjWEgDmvyC3TrOSf/KCGjtu0TSv30ipv27bDLMrpvPmD/5lpptTFwcxvVhCs2b+chCjlghFSWFbBULBrfci2FtliClOVMYrlNBdUSJhf3aYSG2Doe6Bgt1n2CpNn/iu37Y3NfemZBJA7hNl4dYe+f+uzM87cdQ214+jrAoGAXA0XxX8ll2+ToOLJsaNTOvNB9h9Uc5qK5X5w+7G7O998BN2PC/MWp8H+2fVqpXgNENpNXttkRm1hk1dych86EunfdPuqsX+as44oCyJGFHVBnWpm33eWQw9YqANRI+pCJzP08I5WK3osnPiwshd+hR54yjgfYhBFNI7B95PmEQkCgYBzFSz7h1+s34Ycr8SvxsOBWxymG5zaCsUbPsL04aCgLScCHb9J+E86aVbbVFdglYa5Id7DPTL61ixhl7WZjujspeXZGSbmq0KcnckbmDgqkLECiOJW2NHP/j0McAkDLL4tysF8TLDO8gvuvzNC+WQ6drO2ThrypLVZQ+ryeBIPmwKBgEZxhqa0gVvHQG/7Od69KWj4eJP28kq13RhKay8JOoN0vPmspXJo1HY3CKuHRG+AP579dncdUnOMvfXOtkdM4vk0+hWASBQzM9xzVcztCa+koAugjVaLS9A+9uQoqEeVNTckxx0S2bYevRy7hGQmUJTyQm3j1zEUR5jpdbL83Fbq'
+	key_str := base64.url_decode_str(key_der)
+    
+    mut prikey := parse_prikey_pkcs1_der(key_str.bytes())!
+    prikey.precompute()!
+
+	pubkey := prikey.public()
+
+	mut rng := get_rng()
+
+	msg := '12345678abcde'.bytes()
+	label := ''.bytes()
+
+	opts := OAEPOptions{
+		hash:     sha512.new512_256()
+		mgf_hash: sha512.new384()
+		label:    label
+	}
+
+	ciphertext := encrypt_oaep_with_opts(mut rng, pubkey, msg, opts)!
+	assert ciphertext.len > 0
+	// assert '22' == ciphertext.hex()
+
+	// ciphertext = 73dc004444c37e4f26173e6fe5cba738522c6cb33f0f184c86312dfee7d3f7cfae97aa6d06dc42deb1feffd4ad8b9ba905c587178d7e0d56dbc468e38448dcaae63bb34e9c92318e8e619bf85ad426477316ccba3e9aaf3a37aa344b7007c545db68fdda8e0f0122cea46d90dbdffe2f8ab35b27aa727a3ef6ab9f6219562f65a1198bac3993e58c3842f57e173cd410a0f9eed57c46550b2c48595b4535241d4d03d675e2b845bfbea48a4ed8c1e9a8eab6d3deb006227a43cb0c7b7d0ec26eca079e108229a1b3cb997141f352d373a29e3b8a3b044d95f6411b247eb72428b62f482bfcc5791aa59bf25801e4551df3aea4835ad6b4bb5e0cd43029c8a8ca
 
 	demsg := decrypt_oaep_with_opts(prikey, ciphertext, opts)!
 	assert demsg.len > 0

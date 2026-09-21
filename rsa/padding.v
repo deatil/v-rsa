@@ -9,6 +9,7 @@ fn rsa_pkcs1_type_1_pad(em_len int, msg []u8) ![]u8 {
 		return ErrMessageTooLong{}
 	}
 
+	// EM = 0x00 || 0x01 || PS || 0x00 || M
 	mut em := []u8{len: em_len}
 	em[1] = 1
 

@@ -22,11 +22,15 @@ fn get_rng() &mt19937.MT19937RNG {
 }
 
 fn get_prikey() !PrivateKey {
-	n := big.integer_from_radix('9d0f502cf5365bf3949f1bfaa444fa9c9fd0f9126e2d86a753f276e5d5ff813be4f33b88603a6e569b83a363cbb17e0e7c1dd86bc067b9955eec933e08ab75dba44b758a95439e327087d4d5e017c8f79da4d7c7d694ec397fbfeb04a7ee265af15407db70b840aacc03703dc74bf48707f00e781536bf971b61d38d5825838ebd4bed1db8b3f508e15e2e622839b3b0e1fe051b51b2834801df59131e11e7e8cf2120173f4254b9e5a3cab2dcb14f6d4abf087e58876b880eb1d488af21bf80e565939afd08a3ba046444180a955d1f19a40bb51ebcd2a4178df97ee9cf8f145d13d84eef37ea61577e65de80271a3dfc2fbbca2dc5f3ac867aa48c7477b767', 16)!
+	n :=
+		big.integer_from_radix('9d0f502cf5365bf3949f1bfaa444fa9c9fd0f9126e2d86a753f276e5d5ff813be4f33b88603a6e569b83a363cbb17e0e7c1dd86bc067b9955eec933e08ab75dba44b758a95439e327087d4d5e017c8f79da4d7c7d694ec397fbfeb04a7ee265af15407db70b840aacc03703dc74bf48707f00e781536bf971b61d38d5825838ebd4bed1db8b3f508e15e2e622839b3b0e1fe051b51b2834801df59131e11e7e8cf2120173f4254b9e5a3cab2dcb14f6d4abf087e58876b880eb1d488af21bf80e565939afd08a3ba046444180a955d1f19a40bb51ebcd2a4178df97ee9cf8f145d13d84eef37ea61577e65de80271a3dfc2fbbca2dc5f3ac867aa48c7477b767', 16)!
 	e := big.integer_from_radix('010001', 16)!
-	d := big.integer_from_radix('63d392db30747f975f948ddd0e4205a43d743e8b775a1a670a55673b087ca0f0a7c1edc9ed97d5ffd852a02c53109a95ac4feff9f4ce38c7f7109939e99ac98b746ebde3faa182d07e73e754955da8cfb1f44f6e66363bbb0436c0b331e58d9d6a1c45ee3543f75e57d3aba8a89edf6a602235a01fa3afbce49b9632159faa70b570ac22d54af63e1c2f09869d91a0a4cbe4f2f4f0ba6c7469df09a1a121b7044df20b0e90089ae1e4d194bd72c85ead2db6de51b69961b0454b2ed3ac0ed9c1cd75dac818a6cb2d47ec0d950907ad14d68812b4ec83766795369c81fa10eab57c9774bf83f2d9eebc5f96c58d0a864bf005b905cf26deda7c5220754e2ee2b9', 16)!
-	p := big.integer_from_radix('cc558bc7e22c34a9b5012f75ed39ccb284f2f4a64af78652b5cb6f77999202344161192ae63a5cd048d1943b80b98a66e15142187efc2d471f0f7d258843790d87b190a2a522a299b3b8ccf1d250b3003394d29ff6a9a79bbf9b08219d45969147dad74b44ad223adbebf48a2a0dd9ad394a8838fc8bbadc7025001663e4b46b', 16)!
-	q := big.integer_from_radix('c4c5b893ac7215a18383cba6b27bb4e0f8a7890649da0c26c317d1703c16ae7f875686002f840857d814d75ada28b7ac54e3b7a1db6af3a8b67b780beb90a32f80eebb839bdeecf309faca921dd00aeb359aa4b1b93c0357df1c52dcd992548f6739b243630a6149293f8480d38b6ce2b4d603dc5d9d21914a08e3cf020067f5', 16)!
+	d :=
+		big.integer_from_radix('63d392db30747f975f948ddd0e4205a43d743e8b775a1a670a55673b087ca0f0a7c1edc9ed97d5ffd852a02c53109a95ac4feff9f4ce38c7f7109939e99ac98b746ebde3faa182d07e73e754955da8cfb1f44f6e66363bbb0436c0b331e58d9d6a1c45ee3543f75e57d3aba8a89edf6a602235a01fa3afbce49b9632159faa70b570ac22d54af63e1c2f09869d91a0a4cbe4f2f4f0ba6c7469df09a1a121b7044df20b0e90089ae1e4d194bd72c85ead2db6de51b69961b0454b2ed3ac0ed9c1cd75dac818a6cb2d47ec0d950907ad14d68812b4ec83766795369c81fa10eab57c9774bf83f2d9eebc5f96c58d0a864bf005b905cf26deda7c5220754e2ee2b9', 16)!
+	p :=
+		big.integer_from_radix('cc558bc7e22c34a9b5012f75ed39ccb284f2f4a64af78652b5cb6f77999202344161192ae63a5cd048d1943b80b98a66e15142187efc2d471f0f7d258843790d87b190a2a522a299b3b8ccf1d250b3003394d29ff6a9a79bbf9b08219d45969147dad74b44ad223adbebf48a2a0dd9ad394a8838fc8bbadc7025001663e4b46b', 16)!
+	q :=
+		big.integer_from_radix('c4c5b893ac7215a18383cba6b27bb4e0f8a7890649da0c26c317d1703c16ae7f875686002f840857d814d75ada28b7ac54e3b7a1db6af3a8b67b780beb90a32f80eebb839bdeecf309faca921dd00aeb359aa4b1b93c0357df1c52dcd992548f6739b243630a6149293f8480d38b6ce2b4d603dc5d9d21914a08e3cf020067f5', 16)!
 
 	mut prikey := PrivateKey{
 		PublicKey: PublicKey{
@@ -43,7 +47,7 @@ fn get_prikey() !PrivateKey {
 }
 
 fn get_prikey2() !PrivateKey {
-	prikey_pem := "-----BEGIN RSA TESTING KEY-----
+	prikey_pem := '-----BEGIN RSA TESTING KEY-----
 MIIBOgIBAAJBALKZD0nEffqM1ACuak0bijtqE2QrI/KLADv7l3kK3ppMyCuLKoF0
 fd7Ai2KW5ToIwzFofvJcS/STa6HA5gQenRUCAwEAAQJBAIq9amn00aS0h/CrjXqu
 /ThglAXJmZhOMPVn4eiu7/ROixi9sex436MaVeMqSNf7Ex9a8fRNfWss7Sqd9eWu
@@ -51,9 +55,9 @@ RTUCIQDasvGASLqmjeffBNLTXV2A5g4t+kLVCpsEIZAycV5GswIhANEPLmax0ME/
 EO+ZJ79TJKN5yiGBRsv5yvx5UiHxajEXAiAhAol5N4EUyq6I9w1rYdhPMGpLfk7A
 IU2snfRJ6Nq2CQIgFrPsWRCkV+gOYcajD17rEqmuLrdIRexpg8N1DOSXoJ8CIGlS
 tAboUGBxTDq3ZroNism3DaMIbKPyYrAqhKov1h5V
------END RSA TESTING KEY-----"
+-----END RSA TESTING KEY-----'
 
-	block, _ := pem.decode(prikey_pem) or {pem.Block{}, ""}
+	block, _ := pem.decode(prikey_pem) or { pem.Block{}, '' }
 	prikey := parse_prikey_pkcs1_der(block.data)!
 
 	return prikey
@@ -161,18 +165,19 @@ fn test_sign_pkcs1v15_list() {
 fn test_unpadded_signature() {
 	prikey := get_prikey2()!
 
-    msg := "Thu Dec 19 18:06:16 EST 2013\n"
+	msg := 'Thu Dec 19 18:06:16 EST 2013\n'
 
-    // This base64 value was generated with:
-    // % echo Thu Dec 19 18:06:16 EST 2013 > /tmp/msg
-    // % openssl rsautl -sign -inkey key -out /tmp/sig -in /tmp/msg
-    //
-    // Where "key" contains the RSA private key given at the bottom of this
-    // file.
-	expected_sig := base64.url_decode_str("pX4DR8azytjdQ1rtUiC040FjkepuQut5q2ZFX1pTjBrOVKNjgsCDyiJDGZTCNoh9qpXYbhl7iEym30BWWwuiZg==")
+	// This base64 value was generated with:
+	// % echo Thu Dec 19 18:06:16 EST 2013 > /tmp/msg
+	// % openssl rsautl -sign -inkey key -out /tmp/sig -in /tmp/msg
+	//
+	// Where "key" contains the RSA private key given at the bottom of this
+	// file.
+	expected_sig :=
+		base64.url_decode_str('pX4DR8azytjdQ1rtUiC040FjkepuQut5q2ZFX1pTjBrOVKNjgsCDyiJDGZTCNoh9qpXYbhl7iEym30BWWwuiZg==')
 
-    sig := sign_pkcs1v15(prikey, hasher_none, msg.bytes())!
+	sig := sign_pkcs1v15(prikey, hasher_none, msg.bytes())!
 	assert expected_sig.bytes() == sig
 
-    verify_pkcs1v15(prikey.PublicKey, hasher_none, msg.bytes(), sig)!
+	verify_pkcs1v15(prikey.PublicKey, hasher_none, msg.bytes(), sig)!
 }

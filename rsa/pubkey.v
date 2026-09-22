@@ -100,7 +100,7 @@ pub fn make_prikey_pkcs1_der(prikey PrivateKey) ![]u8 {
 		for i := 2; i < prikey.primes.len; i++ {
 			prime := asn1.Integer.from_hex(prikey.primes[i].hex())!
 
-			crt_value := prikey.precomputed.crt_values[i-2]
+			crt_value := prikey.precomputed.crt_values[i - 2]
 			exp := asn1.Integer.from_hex(crt_value.exp.hex())!
 			coeff := asn1.Integer.from_hex(crt_value.coeff.hex())!
 

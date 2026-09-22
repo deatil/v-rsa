@@ -44,4 +44,3 @@ fn test_generate_key2() {
 	}
 	*/
 }
-

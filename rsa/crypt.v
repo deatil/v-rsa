@@ -199,7 +199,7 @@ fn decrypt_publickey(pubkey PublicKey, ciphertext []u8, padding RsaPadding) ![]u
 	// it is true if (m & 0xf) != 12
 	bigint15 := big.integer_from_int(0xf)
 	m_last_4bit := m.bitwise_and(bigint15)
-	if (padding == .x931_padding) && (m_last_4bit.int() != 12) {
+	if padding == .x931_padding && m_last_4bit.int() != 12 {
 		m = pubkey.n - m
 	}
 

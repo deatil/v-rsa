@@ -29,7 +29,6 @@ pub fn encrypt_pkcs1v15(mut random rand.PRNG, pubkey PublicKey, msg []u8) ![]u8 
 	encrypter.with_padding(.pkcs1_padding)
 
 	return encrypter.encrypt(pubkey, msg)
-
 }
 
 // decrypt_pkcs1v15 decrypts a plaintext using RSA and the padding scheme from PKCS #1 v1.5.

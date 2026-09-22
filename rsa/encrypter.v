@@ -67,7 +67,7 @@ pub fn (e &Encrypter) encrypt(pubkey PublicKey, msg []u8) ![]u8 {
 		}
 		.oaep_padding {
 			mut random := e.random
-			
+
 			mut h := hash.Hash(e.hash)
 			mut mgf_h := hash.Hash(e.hash)
 

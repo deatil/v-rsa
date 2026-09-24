@@ -26,6 +26,7 @@ pub struct Hasher {
 pub:
 	prefixe []u8
 	hash    fn () hash.Hash = unsafe { nil }
+	size    int
 }
 
 pub fn (h Hasher) hash_prefixe() []u8 {
@@ -33,8 +34,7 @@ pub fn (h Hasher) hash_prefixe() []u8 {
 }
 
 pub fn (h Hasher) hash_size() int {
-	mut d := h.hash()
-	return d.size()
+	return h.size
 }
 
 pub fn (h Hasher) hash_msg(msg []u8) ![]u8 {
@@ -46,6 +46,7 @@ pub fn (h Hasher) hash_msg(msg []u8) ![]u8 {
 
 pub const hasher_none = Hasher{
 	prefixe: []
+	size:    0
 }
 pub const hasher_md5 = Hasher{
 	prefixe: [u8(0x30), 0x20, 0x30, 0x0c, 0x06, 0x08, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x02,
@@ -53,6 +54,7 @@ pub const hasher_md5 = Hasher{
 	hash:    fn () hash.Hash {
 		return md5.new()
 	}
+	size:    16
 }
 pub const hasher_sha1 = Hasher{
 	prefixe: [u8(0x30), 0x21, 0x30, 0x09, 0x06, 0x05, 0x2b, 0x0e, 0x03, 0x02, 0x1a, 0x05, 0x00,
@@ -60,6 +62,7 @@ pub const hasher_sha1 = Hasher{
 	hash:    fn () hash.Hash {
 		return sha1.new()
 	}
+	size:    20
 }
 pub const hasher_sha224 = Hasher{
 	prefixe: [u8(0x30), 0x2d, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04,
@@ -67,6 +70,7 @@ pub const hasher_sha224 = Hasher{
 	hash:    fn () hash.Hash {
 		return sha256.new224()
 	}
+	size:    28
 }
 pub const hasher_sha256 = Hasher{
 	prefixe: [u8(0x30), 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04,
@@ -74,6 +78,7 @@ pub const hasher_sha256 = Hasher{
 	hash:    fn () hash.Hash {
 		return sha256.new()
 	}
+	size:    32
 }
 pub const hasher_sha384 = Hasher{
 	prefixe: [u8(0x30), 0x41, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04,
@@ -81,6 +86,7 @@ pub const hasher_sha384 = Hasher{
 	hash:    fn () hash.Hash {
 		return sha512.new384()
 	}
+	size:    48
 }
 pub const hasher_sha512 = Hasher{
 	prefixe: [u8(0x30), 0x51, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04,
@@ -88,6 +94,7 @@ pub const hasher_sha512 = Hasher{
 	hash:    fn () hash.Hash {
 		return sha512.new()
 	}
+	size:    64
 }
 pub const hasher_sha512_224 = Hasher{
 	prefixe: [u8(0x30), 0x2d, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04,
@@ -95,6 +102,7 @@ pub const hasher_sha512_224 = Hasher{
 	hash:    fn () hash.Hash {
 		return sha512.new512_224()
 	}
+	size:    28
 }
 pub const hasher_sha512_256 = Hasher{
 	prefixe: [u8(0x30), 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04,
@@ -102,6 +110,7 @@ pub const hasher_sha512_256 = Hasher{
 	hash:    fn () hash.Hash {
 		return sha512.new512_256()
 	}
+	size:    32
 }
 pub const hasher_sha3_224 = Hasher{
 	prefixe: [u8(0x30), 0x2d, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04,
@@ -109,6 +118,7 @@ pub const hasher_sha3_224 = Hasher{
 	hash:    fn () hash.Hash {
 		return new_sha3_224()
 	}
+	size:    28
 }
 pub const hasher_sha3_256 = Hasher{
 	prefixe: [u8(0x30), 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04,
@@ -116,6 +126,7 @@ pub const hasher_sha3_256 = Hasher{
 	hash:    fn () hash.Hash {
 		return new_sha3_256()
 	}
+	size:    32
 }
 pub const hasher_sha3_384 = Hasher{
 	prefixe: [u8(0x30), 0x41, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04,
@@ -123,6 +134,7 @@ pub const hasher_sha3_384 = Hasher{
 	hash:    fn () hash.Hash {
 		return new_sha3_384()
 	}
+	size:    48
 }
 pub const hasher_sha3_512 = Hasher{
 	prefixe: [u8(0x30), 0x51, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04,
@@ -130,6 +142,7 @@ pub const hasher_sha3_512 = Hasher{
 	hash:    fn () hash.Hash {
 		return new_sha3_512()
 	}
+	size:    64
 }
 pub const hasher_ripemd160 = Hasher{
 	prefixe: [u8(0x30), 0x20, 0x30, 0x08, 0x06, 0x06, 0x28, 0xcf, 0x06, 0x03, 0x00, 0x31, 0x04,
@@ -137,6 +150,7 @@ pub const hasher_ripemd160 = Hasher{
 	hash:    fn () hash.Hash {
 		return ripemd160.new()
 	}
+	size:    20
 }
 /*
 pub const hasher_sm3 = Hasher{
@@ -144,6 +158,7 @@ pub const hasher_sm3 = Hasher{
 	hash:    fn () hash.Hash {
 		return sm3.new()
 	}
+	size: 32
 }
 */
 

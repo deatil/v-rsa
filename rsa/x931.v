@@ -16,6 +16,7 @@ pub struct X931Hasher {
 pub:
 	hashid int
 	hash   fn () hash.Hash = unsafe { nil }
+	size   int
 }
 
 pub fn (h X931Hasher) hash_id() int {
@@ -23,8 +24,7 @@ pub fn (h X931Hasher) hash_id() int {
 }
 
 pub fn (h X931Hasher) hash_size() int {
-	mut d := h.hash()
-	return d.size()
+	return d.size
 }
 
 pub fn (h X931Hasher) hash_msg(msg []u8) ![]u8 {
@@ -39,24 +39,28 @@ pub const x931_hasher_sha1 = X931Hasher{
 	hash:   fn () hash.Hash {
 		return sha1.new()
 	}
+	size:   20
 }
 pub const x931_hasher_sha256 = X931Hasher{
 	hashid: 0x34
 	hash:   fn () hash.Hash {
 		return sha256.new()
 	}
+	size:   32
 }
 pub const x931_hasher_sha384 = X931Hasher{
 	hashid: 0x36
 	hash:   fn () hash.Hash {
 		return sha512.new384()
 	}
+	size:   48
 }
 pub const x931_hasher_sha512 = X931Hasher{
 	hashid: 0x35
 	hash:   fn () hash.Hash {
 		return sha512.new()
 	}
+	size:   64
 }
 
 pub fn sign_x931(priv PrivateKey, hasher IX931Hasher, hashed []u8) ![]u8 {

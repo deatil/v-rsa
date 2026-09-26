@@ -24,7 +24,7 @@ pub fn (h X931Hasher) hash_id() int {
 }
 
 pub fn (h X931Hasher) hash_size() int {
-	return d.size
+	return h.size
 }
 
 pub fn (h X931Hasher) hash_msg(msg []u8) ![]u8 {

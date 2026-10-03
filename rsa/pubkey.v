@@ -251,13 +251,10 @@ pub fn make_pubkey_pkcs8_der(pubkey PublicKey) ![]u8 {
 }
 
 fn make_bitstring_bytes(input []u8) []u8 {
-	pad_len := if input.len % 8 == 0 { 0 } else { 8 - input.len % 8 }
+	mut out := []u8{len: input.len + 1}
 
-	mut out := []u8{len: input.len + 2}
-
-	out[0] = u8(pad_len)
+	out[0] = 0
 	copy(mut out[1..], input)
-	out[out.len - 1] = u8(0)
 
 	return out
 }

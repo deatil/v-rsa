@@ -17,6 +17,6 @@ jobs:
       - name: Setup v action
         uses: prantlf/setup-v-action@v4
         with:
-          version: 0.5.2
+          version: master
       - name: Test
         run: v test .

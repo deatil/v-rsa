@@ -17,6 +17,6 @@ jobs:
       - name: Setup v action
         uses: prantlf/setup-v-action@v4
         with:
-          version: weekly.2026.41
+          version: weekly
       - name: Test
         run: v test .

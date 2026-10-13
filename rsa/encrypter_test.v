@@ -245,6 +245,30 @@ fn test_encrypt_with_opts() {
 		assert 'rsa PKCS1-v1_5 encrypt and decrypt' == demsg.bytestr()
 	}
 
+	{
+		mut encrypter := Encrypter.new()
+		encrypter.with_random(mut rng)
+		encrypter.with_padding(.sslv23_padding)
+
+		ciphertext := encrypter.encrypt(pubkey, msg)!
+		assert ciphertext.len > 0
+
+		demsg := encrypter.decrypt(prikey, ciphertext)!
+		assert demsg.len > 0
+		assert '12345678abcde' == demsg.bytestr()
+	}
+	{
+		ciphertext := '0838de3d8bcf75e5036b543cc67a91a978715d2521f268226f3a0cb2ae875b293333ec17788437a88095debf5b3fb1e16ab0d06380fa46729b9b3ad2440d0454'
+		ct := from_hex(ciphertext)!
+
+		mut encrypter := Encrypter.new()
+		encrypter.with_padding(.sslv23_padding)
+
+		demsg := encrypter.decrypt(prikey, ct)!
+		assert demsg.len > 0
+		assert '12345678abcde' == demsg.bytestr()
+	}
+
 	msg2 := 'rsa PKCS1-v1_5 encrypt and decryptrsa PKCS1-v1_5 encrypt and dec'.bytes()
 
 	{

@@ -8,6 +8,7 @@ pub enum RsaPadding {
 	pkcs1_padding
 	oaep_padding
 	x931_padding
+	sslv23_padding
 	no_padding
 }
 
@@ -79,6 +80,10 @@ pub fn (e &Encrypter) encrypt(pubkey PublicKey, msg []u8) ![]u8 {
 
 			rsa_oaep_pad(mut h, mut mgf_h, mut random, k, msg, label)!
 		}
+		.sslv23_padding {
+			mut random := e.random
+			rsa_sslv23_pad(mut random, k, msg)!
+		}
 		.no_padding {
 			rsa_no_pad(k, msg)!
 		}
@@ -114,6 +119,9 @@ pub fn (e &Encrypter) decrypt(priv PrivateKey, ciphertext []u8) ![]u8 {
 			label := e.label
 
 			rsa_oaep_unpad(mut h, mut mgf_h, k, em, label)!
+		}
+		.sslv23_padding {
+			rsa_sslv23_unpad(k, em)!
 		}
 		.no_padding {
 			rsa_no_unpad(k, em)!

@@ -100,7 +100,7 @@ fn rsa_pkcs1_type_2_unpad_internal(em []u8) !(int, []u8, int) {
 	// The remainder of the plaintext must be a string of non-zero random
 	// octets, followed by a 0, followed by the message.
 	//   lookingForIndex: 1 iff we are still looking for the zero.
-	//   index: the offset of the first zero byte.
+	//   index: the offset of the first zero u8.
 	mut looking_for_index := 1
 
 	mut index := 0
@@ -257,6 +257,92 @@ fn rsa_x931_unpad(k int, em []u8) ![]u8 {
 	}
 
 	return em[em.len - j - 1..em.len - 1]
+}
+
+// rsa_sslv23_pad pads msg into em using SSLv23-style / PKCS#1v1.5-like structure:
+// em must have length equal to the RSA modulus size (in bytes).
+// PS length must be >= 8.
+fn rsa_sslv23_pad(mut random rand.PRNG, em_len int, msg []u8) ![]u8 {
+	mlen := msg.len
+	if mlen > em_len-11 {
+		return error("v-rsa: message too long for key size")
+	}
+
+	// em = 0x00 || 0x02 || PS (non-zero random) || 0x00 || msg
+	mut em := []u8{len: em_len}
+
+	// leading zero
+	em[0] = 0x00
+	// block type 2
+	em[1] = 0x02
+
+	ps_len := em_len - 3 - 8 - mlen
+	if ps_len < 0 {
+		return error("v-rsa: invalid padding length")
+	}
+
+	mut ps := []u8{len: ps_len}
+
+	// fill PS with non-zero random bytes
+	non_zero_random_bytes(mut ps, mut random)
+
+	copy(mut em[2 .. 2+ps_len], ps)
+
+	for i := 0; i < 8; i++ {
+		em[ps_len+2+i] = 0x03
+	}
+
+	em[ps_len+10] = 0x00
+	copy(mut em[ps_len+11..], msg)
+
+	return em
+}
+
+fn rsa_sslv23_unpad(k int, em []u8) ![]u8 {
+	if k < 11 {
+		return ErrDecryption{}
+	}
+
+	if em.len < 11 {
+		return error("v-rsa: em too small")
+	}
+
+	// If leading zero present, skip it
+	if em[0] != 0x00 {
+		return error("v-rsa: em type is not 0x00")
+	}
+
+	if em[1] != 0x02 {
+		return error("v-rsa: em type is not 0x02")
+	}
+
+	// find separator 0x00
+	mut i := 2
+	for ; i < em.len; i++ {
+		if em[i] == 0x00 {
+			break
+		}
+	}
+	if i == em.len {
+		return error("v-rsa: separator 0x00 not found")
+	}
+
+	ps_len := i - 2
+	if ps_len < 8 {
+		return error("v-rsa: padding too short")
+	}
+
+	for j := i - 8; j < i; j++ {
+		if em[j] != 0x03 {
+			return ErrDecryption{}
+		}
+	}
+
+	// message starts at i+1
+	mut msg := []u8{len: em.len-(i+1)}
+	copy(mut msg, em[i+1..])
+
+	return msg
 }
 
 fn rsa_no_pad(em_len int, msg []u8) ![]u8 {
